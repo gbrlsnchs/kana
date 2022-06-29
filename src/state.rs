@@ -57,16 +57,16 @@ mod tests {
 	#[test]
 	fn test_hiragana() -> IoResult<()> {
 		let word_table = {
-			let mut v = HashMap::new();
-			v.insert("chottomatte", "ちょっとまって");
-			v.insert(
+			let mut m = HashMap::new();
+			m.insert("chottomatte", "ちょっとまって");
+			m.insert(
 				"nikugazenzensukijaarimasen",
 				"にくがぜんぜんすきじゃありません",
 			);
-			v.insert("wwwwwww", "wwwwwww");
-			v.insert("日本", "日本");
-			v.insert("nihon", "にほん");
-			v
+			m.insert("wwwwwww", "wwwwwww");
+			m.insert("日本", "日本");
+			m.insert("nihon", "にほん");
+			m
 		};
 
 		let (hiragana, _) = load_kanas();
@@ -87,14 +87,14 @@ mod tests {
 	#[test]
 	fn test_katakana() -> IoResult<()> {
 		let word_table = {
-			let mut v = HashMap::new();
-			v.insert("suupaamario", "スーパーマリオ");
-			v.insert("pureisuteeshon", "プレイステーション");
-			v.insert("monkii D. ruufii", "モンキー D. ルーフィー");
-			v.insert("wwwwwww", "wwwwwww");
-			v.insert("supagetti", "スパゲッティ");
-			v.insert("日本", "日本");
-			v
+			let mut m = HashMap::new();
+			m.insert("suupaamario", "スーパーマリオ");
+			m.insert("pureisuteeshon", "プレイステーション");
+			m.insert("monkii D. ruufii", "モンキー D. ルーフィー");
+			m.insert("wwwwwww", "wwwwwww");
+			m.insert("supagetti", "スパゲッティ");
+			m.insert("日本", "日本");
+			m
 		};
 
 		let (_, katakana) = load_kanas();
