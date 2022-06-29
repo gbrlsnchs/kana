@@ -11,7 +11,7 @@ implemented, being left out only ones that are either obsolete or redundant and 
 "#)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
-	#[clap(long, short, help = "Transliterate to Katakana")]
+	#[clap(long, short, help = "Target katakana instead of hiragana")]
 	pub katakana: bool,
 
 	#[clap(
