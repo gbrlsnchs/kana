@@ -1,9 +1,11 @@
 # Kana
 ## About
-Kana is a small CLI program that transliterates romaji text to either hiragana (ひらがな) or katakana (カタカナ).
+Kana is a small CLI program for transliterating romaji text to either hiragana (ひらがな) or
+katakana (カタカナ).
 
 ### How it works
-Internally, it uses a finite-state machine in order to parse everything correctly and in the right order.
+Internally, it uses a finite-state machine in order to parse everything correctly and in the right
+order.
 
 ## Example
 ```shell
