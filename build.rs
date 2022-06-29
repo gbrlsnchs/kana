@@ -1,0 +1,21 @@
+use crate::cli::Args;
+use clap::IntoApp;
+use clap_complete::{self, Shell};
+use std::{fs, io::Error};
+
+#[path = "src/cli.rs"]
+mod cli;
+
+fn main() -> Result<(), Error> {
+	let completion_dir = "target/completions";
+	fs::create_dir_all(completion_dir)?;
+
+	let mut app = Args::into_app();
+	let app_name = app.get_name().to_string();
+
+	for shell in &[Shell::Bash, Shell::Zsh, Shell::Fish] {
+		clap_complete::generate_to(*shell, &mut app, &app_name, completion_dir)?;
+	}
+
+	Ok(())
+}
