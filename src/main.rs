@@ -6,10 +6,9 @@ use crate::cli::Args;
 use crate::run::Result as RunResult;
 
 mod cli;
+mod config;
 mod parser;
 mod run;
-mod spec;
-mod state;
 
 fn main() -> RunResult {
 	let args = Args::parse();

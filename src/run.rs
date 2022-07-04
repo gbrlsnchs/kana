@@ -4,8 +4,8 @@ use std::io::Write;
 use std::result::Result as StdResult;
 
 use crate::cli::Args;
-use crate::spec::Spec;
-use crate::state::State;
+use crate::config::KanaTable;
+use crate::parser::machine::Machine;
 
 pub(super) const fn load_kanas() -> (&'static str, &'static str) {
 	(
@@ -24,15 +24,15 @@ where
 	let (hiragana, katakana) = load_kanas();
 
 	let specs = {
-		let mut specs = HashMap::<bool, Spec>::new();
+		let mut specs = HashMap::<bool, KanaTable>::new();
 		specs.insert(false, toml::de::from_str(hiragana)?);
 		specs.insert(true, toml::de::from_str(katakana)?);
 		specs
 	};
 
-	let spec = specs.get(&args.katakana).unwrap();
+	let table = specs.get(&args.katakana).unwrap();
 
-	State::init(&spec, &words, |result| writeln!(out, "{}", result))?;
+	Machine::start(&table, &words, |result| writeln!(out, "{}", result))?;
 
 	Ok(())
 }
@@ -56,7 +56,10 @@ mod tests {
 
 		run(&mut out, args)?;
 
-		assert_eq!(String::from_utf8(out).unwrap(), "ありがとうございます! いただきます!\n");
+		assert_eq!(
+			String::from_utf8(out).unwrap(),
+			"ありがとうございます! いただきます!\n"
+		);
 
 		Ok(())
 	}

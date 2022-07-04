@@ -3,9 +3,9 @@ use std::collections::{HashMap, HashSet};
 use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
-pub struct Spec<'a> {
+pub struct KanaTable<'a> {
 	#[serde(borrow)]
-	pub graphs: HashMap<&'a str, &'a str>,
+	pub syllabograms: HashMap<&'a str, &'a str>,
 	pub graphemes: Graphemes<'a>,
 }
 
