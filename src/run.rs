@@ -1,13 +1,8 @@
-use std::collections::HashMap;
-use std::error::Error;
-use std::io::Write;
-use std::result::Result as StdResult;
+use std::{collections::HashMap, error::Error, io::Write, result::Result as StdResult};
 
-use crate::cli::Args;
-use crate::config::KanaTable;
-use crate::parser::machine::Machine;
+use crate::{cli::Args, config::KanaTable, parser::machine::Machine};
 
-pub(super) const fn load_kanas() -> (&'static str, &'static str) {
+pub const fn load_kanas() -> (&'static str, &'static str) {
 	(
 		include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/hiragana.toml")),
 		include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/katakana.toml")),
@@ -42,7 +37,7 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_output() -> Result {
+	fn test_output_hiragana() -> Result {
 		let mut out = Vec::new();
 		let args = Args {
 			words: {
@@ -51,7 +46,7 @@ mod tests {
 				v.push("itadakimasu!".into());
 				v
 			},
-			..Args::default()
+			..Default::default()
 		};
 
 		run(&mut out, args)?;
@@ -59,6 +54,30 @@ mod tests {
 		assert_eq!(
 			String::from_utf8(out).unwrap(),
 			"ありがとうございます! いただきます!\n"
+		);
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_output_katakana() -> Result {
+		let mut out = Vec::new();
+		let args = Args {
+			katakana: true,
+			words: {
+				let mut v = Vec::new();
+				v.push("arigatougozaimasu!".into());
+				v.push("itadakimasu!".into());
+				v
+			},
+			..Default::default()
+		};
+
+		run(&mut out, args)?;
+
+		assert_eq!(
+			String::from_utf8(out).unwrap(),
+			"アリガトウゴザイマス! イタダキマス!\n"
 		);
 
 		Ok(())
