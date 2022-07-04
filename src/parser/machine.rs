@@ -1,17 +1,37 @@
+use std::collections::HashMap;
+
 use crate::config::KanaTable;
 
-use super::states::{Choonpu, Digraph, LongDigraph, Monograph, Nasal, Sukuon};
+use super::states::{Choonpu, Digraph, KanaToggle, LongDigraph, Monograph, Nasal, Sukuon};
 
 pub type NextState<'a> = Option<State<'a>>;
+
+#[derive(Debug, PartialEq)]
+pub enum State<'a> {
+	LongDigraph(LongDigraph<'a>),
+	Digraph(Digraph<'a>),
+	Monograph(Monograph<'a>),
+	Nasal(Nasal<'a>),
+	Sukuon(Sukuon<'a>),
+	Choonpu(Choonpu<'a>),
+	KanaToggle(KanaToggle<'a>),
+}
 
 pub struct Machine;
 
 impl Machine {
-	pub fn start<F, R>(table: &KanaTable, word: &str, mut handle: F) -> R
+	pub fn start<F, R>(
+		tables: &HashMap<bool, &KanaTable>,
+		toggles: (bool, Option<char>),
+		word: &str,
+		mut handle: F,
+	) -> R
 	where
 		F: FnMut(String) -> R,
 	{
-		let mut state = State::LongDigraph(LongDigraph(word));
+		let (mut katakana, toggle_char) = toggles;
+		let mut table = tables.get(&katakana).unwrap();
+		let mut state = State::KanaToggle(KanaToggle(word, toggle_char, false));
 		let mut result = String::with_capacity(word.len() * 2);
 
 		loop {
@@ -22,6 +42,16 @@ impl Machine {
 				State::Nasal(s) => s.next(table),
 				State::Sukuon(s) => s.next(table),
 				State::Choonpu(s) => s.next(table),
+				State::KanaToggle(s) => {
+					let KanaToggle(_, _, matches) = s;
+
+					if matches {
+						katakana = !katakana;
+						table = tables.get(&katakana).unwrap();
+					}
+
+					s.next(table)
+				}
 			};
 
 			if let Some(s) = s {
@@ -49,16 +79,6 @@ where
 	T: Next<'a>,
 {
 	fn prev(state: T) -> Self;
-}
-
-#[derive(Debug, PartialEq)]
-pub enum State<'a> {
-	LongDigraph(LongDigraph<'a>),
-	Digraph(Digraph<'a>),
-	Monograph(Monograph<'a>),
-	Nasal(Nasal<'a>),
-	Sukuon(Sukuon<'a>),
-	Choonpu(Choonpu<'a>),
 }
 
 impl<'a> From<LongDigraph<'a>> for NextState<'a> {
@@ -97,6 +117,12 @@ impl<'a> From<Choonpu<'a>> for NextState<'a> {
 	}
 }
 
+impl<'a> From<KanaToggle<'a>> for NextState<'a> {
+	fn from(state: KanaToggle<'a>) -> Self {
+		Some(State::KanaToggle(state))
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use std::{collections::HashMap, io::Result as IoResult};
@@ -107,12 +133,20 @@ mod tests {
 
 	#[test]
 	fn test_hiragana() -> IoResult<()> {
-		let (hiragana, _) = load_kanas();
-		let table: KanaTable = toml::de::from_str(hiragana)?;
+		let (hiragana, katakana) = load_kanas();
+		let hiragana: KanaTable = toml::de::from_str(hiragana)?;
+		let katakana: KanaTable = toml::de::from_str(katakana)?;
+
+		let tables = {
+			let mut m = HashMap::new();
+			m.insert(false, &hiragana);
+			m.insert(true, &katakana);
+			m
+		};
 
 		// Test against all hiragana syllabograms.
-		for (input, want) in &table.syllabograms {
-			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+		for (input, want) in &hiragana.syllabograms {
+			let result: Result<(), ()> = Machine::start(&tables, (false, None), input, |result| {
 				assert_eq!(result, *want);
 				Ok(())
 			});
@@ -137,10 +171,27 @@ mod tests {
 		};
 
 		for (input, want) in word_table {
-			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+			let result: Result<(), ()> = Machine::start(&tables, (false, None), input, |result| {
 				assert_eq!(result, want);
 				Ok(())
 			});
+
+			assert!(result.is_ok());
+		}
+
+		// Test against real cases with toggling.
+		let word_table = {
+			let mut m = HashMap::new();
+			m.insert("watashiha@gaburieru@desu", "わたしはガブリエルです");
+			m
+		};
+
+		for (input, want) in word_table {
+			let result: Result<(), ()> =
+				Machine::start(&tables, (false, Some('@')), input, |result| {
+					assert_eq!(result, want);
+					Ok(())
+				});
 
 			assert!(result.is_ok());
 		}
@@ -150,12 +201,20 @@ mod tests {
 
 	#[test]
 	fn test_katakana() -> IoResult<()> {
-		let (_, katakana) = load_kanas();
-		let table: KanaTable = toml::de::from_str(katakana)?;
+		let (hiragana, katakana) = load_kanas();
+		let hiragana: KanaTable = toml::de::from_str(hiragana)?;
+		let katakana: KanaTable = toml::de::from_str(katakana)?;
+
+		let tables = {
+			let mut m = HashMap::new();
+			m.insert(false, &hiragana);
+			m.insert(true, &katakana);
+			m
+		};
 
 		// Test against all katakana syllabograms.
-		for (input, want) in &table.syllabograms {
-			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+		for (input, want) in &katakana.syllabograms {
+			let result: Result<(), ()> = Machine::start(&tables, (true, None), input, |result| {
 				assert_eq!(result, *want);
 				Ok(())
 			});
@@ -179,10 +238,27 @@ mod tests {
 		};
 
 		for (input, want) in word_table {
-			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+			let result: Result<(), ()> = Machine::start(&tables, (true, None), input, |result| {
 				assert_eq!(result, want);
 				Ok(())
 			});
+
+			assert!(result.is_ok());
+		}
+
+		// Test against real cases with toggling.
+		let word_table = {
+			let mut m = HashMap::new();
+			m.insert("watashiha@gaburieru@desu", "ワタシハがぶりえるデス");
+			m
+		};
+
+		for (input, want) in word_table {
+			let result: Result<(), ()> =
+				Machine::start(&tables, (true, Some('@')), input, |result| {
+					assert_eq!(result, want);
+					Ok(())
+				});
 
 			assert!(result.is_ok());
 		}

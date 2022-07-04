@@ -15,6 +15,13 @@ pub struct Args {
 	pub katakana: bool,
 
 	#[clap(
+		long,
+		short = 't',
+		help = "Character for toggling between hiragana and katana"
+	)]
+	pub toggle_char: Option<char>,
+
+	#[clap(
 		value_parser,
 		required = true,
 		help = "List of words to be transliterated"

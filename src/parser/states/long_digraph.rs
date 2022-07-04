@@ -6,10 +6,10 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, Digraph, Monograph, Nasal, Sukuon};
+use super::{Choonpu, KanaToggle, Sukuon};
 
 #[derive(Debug, PartialEq)]
-pub struct LongDigraph<'a>(pub &'a str);
+pub struct LongDigraph<'a>(pub &'a str, pub Option<char>);
 
 impl<'a> Next<'a> for LongDigraph<'a> {
 	const SIZE: usize = 4;
@@ -30,53 +30,16 @@ impl<'a> Next<'a> for LongDigraph<'a> {
 				if table.graphemes.choonpu.is_some() {
 					Choonpu::prev(self).into()
 				} else {
-					Self::prev(self).into()
+					KanaToggle::prev(self).into()
 				},
 			),
 		}
 	}
 }
 
-impl<'a> Previous<'a, LongDigraph<'a>> for LongDigraph<'a> {
-	fn prev(state: LongDigraph<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Self::SIZE))
-	}
-}
-
-impl<'a> Previous<'a, Digraph<'a>> for LongDigraph<'a> {
-	fn prev(state: Digraph<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Digraph::SIZE))
-	}
-}
-
-impl<'a> Previous<'a, Monograph<'a>> for LongDigraph<'a> {
-	fn prev(state: Monograph<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Monograph::SIZE))
-	}
-}
-
-impl<'a> Previous<'a, Nasal<'a>> for LongDigraph<'a> {
-	fn prev(state: Nasal<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Nasal::SIZE))
-	}
-}
-
-impl<'a> Previous<'a, Sukuon<'a>> for LongDigraph<'a> {
-	fn prev(state: Sukuon<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Sukuon::SIZE - 1))
-	}
-}
-
-impl<'a> Previous<'a, Choonpu<'a>> for LongDigraph<'a> {
-	fn prev(state: Choonpu<'a>) -> Self {
-		Self(util::utf8_word_slice_from(
-			state.0,
-			if state.1 {
-				Choonpu::SIZE
-			} else {
-				Choonpu::SIZE - 1
-			},
-		))
+impl<'a> Previous<'a, KanaToggle<'a>> for LongDigraph<'a> {
+	fn prev(state: KanaToggle<'a>) -> Self {
+		Self(state.0, state.1)
 	}
 }
 
@@ -90,27 +53,27 @@ mod tests {
 
 	#[test]
 	fn test_small_word() {
-		let current = LongDigraph("テスト");
+		let current = LongDigraph("テスト", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Sukuon("テスト").into());
+		assert_eq!(next, Sukuon("テスト", None).into());
 	}
 
 	#[test]
 	fn test_no_match() {
-		let current = LongDigraph("testing");
+		let current = LongDigraph("testing", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Sukuon("testing").into());
+		assert_eq!(next, Sukuon("testing", None).into());
 	}
 
 	#[test]
 	fn test_regular_match() {
-		let current = LongDigraph("testing");
+		let current = LongDigraph("testing", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -122,12 +85,12 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, LongDigraph("ing").into());
+		assert_eq!(next, KanaToggle("ing", None, false).into());
 	}
 
 	#[test]
 	fn test_match_with_choonpu() {
-		let current = LongDigraph("yahoo");
+		let current = LongDigraph("yahoo", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -150,49 +113,18 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, Choonpu("oo", false).into());
+		assert_eq!(next, Choonpu("oo", None, false).into());
 	}
 
 	#[test]
-	fn test_prev_long_digraph() {
+	fn test_prev_kana_toggle() {
 		assert_eq!(
-			LongDigraph::prev(LongDigraph("testing")),
-			LongDigraph("ing")
-		);
-	}
-
-	#[test]
-	fn test_prev_digraph() {
-		assert_eq!(LongDigraph::prev(Digraph("testing")), LongDigraph("ting"));
-	}
-
-	#[test]
-	fn test_prev_monograph() {
-		assert_eq!(
-			LongDigraph::prev(Monograph("testing")),
-			LongDigraph("sting")
-		);
-	}
-
-	#[test]
-	fn test_prev_nasal() {
-		assert_eq!(LongDigraph::prev(Nasal("testing")), LongDigraph("esting"));
-	}
-
-	#[test]
-	fn test_prev_sukuon() {
-		assert_eq!(LongDigraph::prev(Sukuon("testing")), LongDigraph("esting"));
-	}
-
-	#[test]
-	fn test_prev_choonpu() {
-		assert_eq!(
-			LongDigraph::prev(Choonpu("testing", false)),
-			LongDigraph("esting")
+			LongDigraph::prev(KanaToggle("testing", None, true)),
+			LongDigraph("testing", None),
 		);
 		assert_eq!(
-			LongDigraph::prev(Choonpu("testing", true)),
-			LongDigraph("sting")
+			LongDigraph::prev(KanaToggle("testing", Some('@'), true)),
+			LongDigraph("testing", Some('@')),
 		);
 	}
 }

@@ -6,10 +6,10 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, LongDigraph, Monograph, Sukuon};
+use super::{Choonpu, KanaToggle, Monograph, Sukuon};
 
 #[derive(Debug, PartialEq)]
-pub struct Nasal<'a>(pub &'a str);
+pub struct Nasal<'a>(pub &'a str, pub Option<char>);
 
 impl<'a> Next<'a> for Nasal<'a> {
 	const SIZE: usize = 1;
@@ -26,12 +26,12 @@ impl<'a> Next<'a> for Nasal<'a> {
 		(
 			table
 				.syllabograms
-				.get(query)
+				.get(&query)
 				.map_or_else(|| Some(query), |s| Some(*s)),
 			if table.graphemes.choonpu.is_some() {
 				Choonpu::prev(self).into()
 			} else {
-				LongDigraph::prev(self).into()
+				KanaToggle::prev(self).into()
 			},
 		)
 	}
@@ -39,19 +39,22 @@ impl<'a> Next<'a> for Nasal<'a> {
 
 impl<'a> Previous<'a, Monograph<'a>> for Nasal<'a> {
 	fn prev(state: Monograph<'a>) -> Self {
-		Self(state.0)
+		Self(state.0, state.1)
 	}
 }
 
 impl<'a> Previous<'a, Sukuon<'a>> for Nasal<'a> {
 	fn prev(state: Sukuon<'a>) -> Self {
-		Self(state.0)
+		Self(state.0, state.1)
 	}
 }
 
 impl<'a> Previous<'a, Choonpu<'a>> for Nasal<'a> {
 	fn prev(state: Choonpu<'a>) -> Self {
-		Self(util::utf8_word_slice_from(state.0, Choonpu::SIZE - 1))
+		Self(
+			util::utf8_word_slice_from(state.0, Choonpu::SIZE - 1),
+			state.1,
+		)
 	}
 }
 
@@ -65,7 +68,7 @@ mod tests {
 
 	#[test]
 	fn test_small_word() {
-		let current = Nasal("");
+		let current = Nasal("", None);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
@@ -74,19 +77,19 @@ mod tests {
 
 	#[test]
 	fn test_no_match() {
-		let current = Nasal("a");
+		let current = Nasal("a", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		// This state returns the original query if nothing is found, since it's essentially the
 		// last parsing step, this way preserving untranslatable characters prev the original word.
 		assert_eq!(result, Some("a"));
-		assert_eq!(next, LongDigraph("").into());
+		assert_eq!(next, KanaToggle("", None, false).into());
 	}
 
 	#[test]
 	fn test_regular_match() {
-		let current = Nasal("abc");
+		let current = Nasal("abc", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -98,12 +101,12 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, LongDigraph("bc").into());
+		assert_eq!(next, KanaToggle("bc", None, false).into());
 	}
 
 	#[test]
 	fn test_match_with_choonpu() {
-		let current = Nasal("oomen");
+		let current = Nasal("oomen", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -126,21 +129,39 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, Choonpu("oomen", false).into());
+		assert_eq!(next, Choonpu("oomen", None, false).into());
 	}
 
 	#[test]
 	fn test_prev_monograph() {
-		assert_eq!(Nasal::prev(Monograph("testing")), Nasal("testing"));
+		assert_eq!(
+			Nasal::prev(Monograph("testing", None)),
+			Nasal("testing", None),
+		);
+		assert_eq!(
+			Nasal::prev(Monograph("testing", Some('@'))),
+			Nasal("testing", Some('@')),
+		);
 	}
 
 	#[test]
 	fn test_prev_sukuon() {
-		assert_eq!(Nasal::prev(Sukuon("testing")), Nasal("testing"));
+		assert_eq!(Nasal::prev(Sukuon("testing", None)), Nasal("testing", None));
+		assert_eq!(
+			Nasal::prev(Sukuon("testing", Some('@'))),
+			Nasal("testing", Some('@')),
+		);
 	}
 
 	#[test]
 	fn test_prev_choonpu() {
-		assert_eq!(Nasal::prev(Choonpu("testing", false)), Nasal("esting"));
+		assert_eq!(
+			Nasal::prev(Choonpu("testing", None, false)),
+			Nasal("esting", None),
+		);
+		assert_eq!(
+			Nasal::prev(Choonpu("testing", Some('@'), false)),
+			Nasal("esting", Some('@')),
+		);
 	}
 }

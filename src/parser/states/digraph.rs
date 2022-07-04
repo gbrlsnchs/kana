@@ -6,10 +6,10 @@ use crate::{
 	},
 };
 
-use super::{monograph::Monograph, sukuon::Sukuon, Choonpu, LongDigraph};
+use super::{monograph::Monograph, sukuon::Sukuon, Choonpu, KanaToggle};
 
 #[derive(Debug, PartialEq)]
-pub struct Digraph<'a>(pub &'a str);
+pub struct Digraph<'a>(pub &'a str, pub Option<char>);
 
 impl<'a> Next<'a> for Digraph<'a> {
 	const SIZE: usize = 3;
@@ -30,7 +30,7 @@ impl<'a> Next<'a> for Digraph<'a> {
 				if table.graphemes.choonpu.is_some() {
 					Choonpu::prev(self).into()
 				} else {
-					LongDigraph::prev(self).into()
+					KanaToggle::prev(self).into()
 				},
 			),
 		}
@@ -39,7 +39,7 @@ impl<'a> Next<'a> for Digraph<'a> {
 
 impl<'a> Previous<'a, Sukuon<'a>> for Digraph<'a> {
 	fn prev(state: Sukuon<'a>) -> Self {
-		Digraph(state.0)
+		Digraph(state.0, state.1)
 	}
 }
 
@@ -53,27 +53,27 @@ mod tests {
 
 	#[test]
 	fn test_small_word() {
-		let current = Digraph("oi");
+		let current = Digraph("oi", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Monograph("oi").into());
+		assert_eq!(next, Monograph("oi", None).into());
 	}
 
 	#[test]
 	fn test_no_match() {
-		let current = Digraph("alo");
+		let current = Digraph("alo", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Monograph("alo").into());
+		assert_eq!(next, Monograph("alo", None).into());
 	}
 
 	#[test]
 	fn test_regular_match() {
-		let current = Digraph("foobar");
+		let current = Digraph("foobar", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -85,12 +85,12 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, LongDigraph("bar").into());
+		assert_eq!(next, KanaToggle("bar", None, false).into());
 	}
 
 	#[test]
 	fn test_match_with_choonpu() {
-		let current = Digraph("olaa");
+		let current = Digraph("olaa", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -113,11 +113,18 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, Choonpu("aa", false).into());
+		assert_eq!(next, Choonpu("aa", None, false).into());
 	}
 
 	#[test]
 	fn test_prev_sukuon() {
-		assert_eq!(Digraph::prev(Sukuon("testing")), Digraph("testing"));
+		assert_eq!(
+			Digraph::prev(Sukuon("testing", None)),
+			Digraph("testing", None)
+		);
+		assert_eq!(
+			Digraph::prev(Sukuon("testing", Some('@'))),
+			Digraph("testing", Some('@')),
+		);
 	}
 }

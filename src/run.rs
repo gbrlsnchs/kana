@@ -17,17 +17,21 @@ where
 {
 	let words = args.words.join(" ");
 	let (hiragana, katakana) = load_kanas();
+	let (hiragana, katakana) = (toml::de::from_str(hiragana)?, toml::de::from_str(katakana)?);
 
-	let specs = {
-		let mut specs = HashMap::<bool, KanaTable>::new();
-		specs.insert(false, toml::de::from_str(hiragana)?);
-		specs.insert(true, toml::de::from_str(katakana)?);
-		specs
+	let tables = {
+		let mut m = HashMap::<bool, &KanaTable>::new();
+		m.insert(false, &hiragana);
+		m.insert(true, &katakana);
+		m
 	};
 
-	let table = specs.get(&args.katakana).unwrap();
-
-	Machine::start(&table, &words, |result| writeln!(out, "{}", result))?;
+	Machine::start(
+		&tables,
+		(args.katakana, args.toggle_char),
+		&words,
+		|result| writeln!(out, "{}", result),
+	)?;
 
 	Ok(())
 }

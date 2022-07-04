@@ -6,10 +6,10 @@ use crate::{
 	},
 };
 
-use super::{Digraph, LongDigraph, Nasal};
+use super::{Digraph, KanaToggle, LongDigraph, Nasal};
 
 #[derive(Debug, PartialEq)]
-pub struct Sukuon<'a>(pub &'a str);
+pub struct Sukuon<'a>(pub &'a str, pub Option<char>);
 
 impl<'a> Next<'a> for Sukuon<'a> {
 	const SIZE: usize = 2;
@@ -26,7 +26,7 @@ impl<'a> Next<'a> for Sukuon<'a> {
 		match table.graphemes.sukuon.matches.contains(query) {
 			true => (
 				Some(table.graphemes.sukuon.graph),
-				LongDigraph::prev(self).into(),
+				KanaToggle::prev(self).into(),
 			),
 			false => (None, Digraph::prev(self).into()),
 		}
@@ -35,7 +35,7 @@ impl<'a> Next<'a> for Sukuon<'a> {
 
 impl<'a> Previous<'a, LongDigraph<'a>> for Sukuon<'a> {
 	fn prev(state: LongDigraph<'a>) -> Self {
-		Sukuon(state.0)
+		Sukuon(state.0, state.1)
 	}
 }
 
@@ -49,28 +49,28 @@ mod tests {
 
 	#[test]
 	fn test_small_word() {
-		let current = Sukuon("ツ");
+		let current = Sukuon("ツ", None);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
-		assert_eq!((None, Nasal("ツ").into()), next);
+		assert_eq!((None, Nasal("ツ", None).into()), next);
 	}
 
 	#[test]
 	fn test_no_match() {
-		let current = Sukuon("tto");
+		let current = Sukuon("tto", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		// This state returns the original query if nothing is found, since it's essentially the
 		// last parsing step, this way preserving untranslatable characters prev the original word.
 		assert_eq!(result, None);
-		assert_eq!(next, Digraph("tto").into());
+		assert_eq!(next, Digraph("tto", None).into());
 	}
 
 	#[test]
 	fn test_regular_match() {
-		let current = Sukuon("tto");
+		let current = Sukuon("tto", None);
 		let table = KanaTable {
 			syllabograms: {
 				let mut m = HashMap::new();
@@ -92,11 +92,18 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("+"));
-		assert_eq!(next, LongDigraph("to").into());
+		assert_eq!(next, KanaToggle("to", None, false).into());
 	}
 
 	#[test]
 	fn test_prev_long_digraph() {
-		assert_eq!(Sukuon::prev(LongDigraph("testing")), Sukuon("testing"));
+		assert_eq!(
+			Sukuon::prev(LongDigraph("testing", None)),
+			Sukuon("testing", None),
+		);
+		assert_eq!(
+			Sukuon::prev(LongDigraph("testing", Some('@'))),
+			Sukuon("testing", Some('@')),
+		);
 	}
 }
