@@ -107,6 +107,20 @@ mod tests {
 
 	#[test]
 	fn test_hiragana() -> IoResult<()> {
+		let (hiragana, _) = load_kanas();
+		let table: KanaTable = toml::de::from_str(hiragana)?;
+
+		// Test against all hiragana syllabograms.
+		for (input, want) in &table.syllabograms {
+			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+				assert_eq!(result, *want);
+				Ok(())
+			});
+
+			assert!(result.is_ok());
+		}
+
+		// Test against real cases.
 		let word_table = {
 			let mut m = HashMap::new();
 			m.insert("chottomatte", "ちょっとまって");
@@ -117,11 +131,10 @@ mod tests {
 			m.insert("wwwwwww", "wwwwwww");
 			m.insert("日本", "日本");
 			m.insert("nihon", "にほん");
+			m.insert("12jinitabemasu!", "12じにたべます!");
+			m.insert("123 GO!", "123 GO!");
 			m
 		};
-
-		let (hiragana, _) = load_kanas();
-		let table = toml::de::from_str(hiragana)?;
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> = Machine::start(&table, input, |result| {
@@ -137,20 +150,33 @@ mod tests {
 
 	#[test]
 	fn test_katakana() -> IoResult<()> {
+		let (_, katakana) = load_kanas();
+		let table: KanaTable = toml::de::from_str(katakana)?;
+
+		// Test against all katakana syllabograms.
+		for (input, want) in &table.syllabograms {
+			let result: Result<(), ()> = Machine::start(&table, input, |result| {
+				assert_eq!(result, *want);
+				Ok(())
+			});
+
+			assert!(result.is_ok());
+		}
+
+		// Test against real cases.
 		let word_table = {
 			let mut m = HashMap::new();
 			m.insert("oomen", "オーメン");
+			m.insert("tsyuu", "ツュー");
 			m.insert("suupaamario", "スーパーマリオ");
 			m.insert("pureisuteeshon", "プレイステーション");
-			m.insert("monkii D. ruufii", "モンキー D. ルーフィー");
+			m.insert("monkii D. rufi", "モンキー D. ルフィ");
 			m.insert("wwwwwww", "wwwwwww");
 			m.insert("supagetti", "スパゲッティ");
 			m.insert("日本", "日本");
+			m.insert("123 GO!", "123 GO!");
 			m
 		};
-
-		let (_, katakana) = load_kanas();
-		let table = toml::de::from_str(katakana)?;
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> = Machine::start(&table, input, |result| {
