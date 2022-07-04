@@ -62,6 +62,12 @@ impl<'a> Previous<'a, Monograph<'a>> for Choonpu<'a> {
 	}
 }
 
+impl<'a> Previous<'a, Nasal<'a>> for Choonpu<'a> {
+	fn prev(state: Nasal<'a>) -> Self {
+		Self(state.0, false)
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use std::collections::{HashMap, HashSet};

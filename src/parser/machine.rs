@@ -139,6 +139,7 @@ mod tests {
 	fn test_katakana() -> IoResult<()> {
 		let word_table = {
 			let mut m = HashMap::new();
+			m.insert("oomen", "オーメン");
 			m.insert("suupaamario", "スーパーマリオ");
 			m.insert("pureisuteeshon", "プレイステーション");
 			m.insert("monkii D. ruufii", "モンキー D. ルーフィー");

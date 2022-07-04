@@ -28,7 +28,11 @@ impl<'a> Next<'a> for Nasal<'a> {
 				.syllabograms
 				.get(query)
 				.map_or_else(|| Some(query), |s| Some(*s)),
-			LongDigraph::prev(self).into(),
+			if table.graphemes.choonpu.is_some() {
+				Choonpu::prev(self).into()
+			} else {
+				LongDigraph::prev(self).into()
+			},
 		)
 	}
 }
@@ -53,7 +57,9 @@ impl<'a> Previous<'a, Choonpu<'a>> for Nasal<'a> {
 
 #[cfg(test)]
 mod tests {
-	use std::collections::HashMap;
+	use std::collections::{HashMap, HashSet};
+
+	use crate::config::{Grapheme, Graphemes};
 
 	use super::*;
 
@@ -93,5 +99,33 @@ mod tests {
 
 		assert_eq!(result, Some("@"));
 		assert_eq!(next, LongDigraph("bc").into());
+	}
+
+	#[test]
+	fn test_match_with_choonpu() {
+		let current = Nasal("oomen");
+		let table = KanaTable {
+			syllabograms: {
+				let mut m = HashMap::new();
+				m.insert("o", "@");
+				m
+			},
+			graphemes: Graphemes {
+				choonpu: Some(Grapheme {
+					matches: {
+						let mut s = HashSet::new();
+						s.insert("oo");
+						s
+					},
+					graph: "!",
+				}),
+				..Default::default()
+			},
+			..Default::default()
+		};
+		let (result, next) = current.next(&table);
+
+		assert_eq!(result, Some("@"));
+		assert_eq!(next, Choonpu("oomen", false).into());
 	}
 }
