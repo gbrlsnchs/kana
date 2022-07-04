@@ -115,4 +115,9 @@ mod tests {
 		assert_eq!(result, Some("@"));
 		assert_eq!(next, Choonpu("ii", false).into());
 	}
+
+	#[test]
+	fn test_prev_digraph() {
+		assert_eq!(Monograph::prev(Digraph("testing")), Monograph("testing"));
+	}
 }

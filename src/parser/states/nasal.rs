@@ -128,4 +128,19 @@ mod tests {
 		assert_eq!(result, Some("@"));
 		assert_eq!(next, Choonpu("oomen", false).into());
 	}
+
+	#[test]
+	fn test_prev_monograph() {
+		assert_eq!(Nasal::prev(Monograph("testing")), Nasal("testing"));
+	}
+
+	#[test]
+	fn test_prev_sukuon() {
+		assert_eq!(Nasal::prev(Sukuon("testing")), Nasal("testing"));
+	}
+
+	#[test]
+	fn test_prev_choonpu() {
+		assert_eq!(Nasal::prev(Choonpu("testing", false)), Nasal("esting"));
+	}
 }

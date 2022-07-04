@@ -121,4 +121,30 @@ mod tests {
 		assert_eq!(result, Some("~"));
 		assert_eq!(next, LongDigraph("men").into());
 	}
+
+	#[test]
+	fn test_prev_long_digraph() {
+		assert_eq!(
+			Choonpu::prev(LongDigraph("testing")),
+			Choonpu("ting", false)
+		);
+	}
+
+	#[test]
+	fn test_prev_digraph() {
+		assert_eq!(Choonpu::prev(Digraph("testing")), Choonpu("sting", false));
+	}
+
+	#[test]
+	fn test_prev_monograph() {
+		assert_eq!(
+			Choonpu::prev(Monograph("testing")),
+			Choonpu("esting", false)
+		);
+	}
+
+	#[test]
+	fn test_prev_nasal() {
+		assert_eq!(Choonpu::prev(Nasal("testing")), Choonpu("testing", false));
+	}
 }

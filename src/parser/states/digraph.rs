@@ -115,4 +115,9 @@ mod tests {
 		assert_eq!(result, Some("@"));
 		assert_eq!(next, Choonpu("aa", false).into());
 	}
+
+	#[test]
+	fn test_prev_sukuon() {
+		assert_eq!(Digraph::prev(Sukuon("testing")), Digraph("testing"));
+	}
 }

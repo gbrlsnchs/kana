@@ -152,4 +152,47 @@ mod tests {
 		assert_eq!(result, Some("@"));
 		assert_eq!(next, Choonpu("oo", false).into());
 	}
+
+	#[test]
+	fn test_prev_long_digraph() {
+		assert_eq!(
+			LongDigraph::prev(LongDigraph("testing")),
+			LongDigraph("ing")
+		);
+	}
+
+	#[test]
+	fn test_prev_digraph() {
+		assert_eq!(LongDigraph::prev(Digraph("testing")), LongDigraph("ting"));
+	}
+
+	#[test]
+	fn test_prev_monograph() {
+		assert_eq!(
+			LongDigraph::prev(Monograph("testing")),
+			LongDigraph("sting")
+		);
+	}
+
+	#[test]
+	fn test_prev_nasal() {
+		assert_eq!(LongDigraph::prev(Nasal("testing")), LongDigraph("esting"));
+	}
+
+	#[test]
+	fn test_prev_sukuon() {
+		assert_eq!(LongDigraph::prev(Sukuon("testing")), LongDigraph("esting"));
+	}
+
+	#[test]
+	fn test_prev_choonpu() {
+		assert_eq!(
+			LongDigraph::prev(Choonpu("testing", false)),
+			LongDigraph("esting")
+		);
+		assert_eq!(
+			LongDigraph::prev(Choonpu("testing", true)),
+			LongDigraph("sting")
+		);
+	}
 }

@@ -94,4 +94,9 @@ mod tests {
 		assert_eq!(result, Some("+"));
 		assert_eq!(next, LongDigraph("to").into());
 	}
+
+	#[test]
+	fn test_prev_long_digraph() {
+		assert_eq!(Sukuon::prev(LongDigraph("testing")), Sukuon("testing"));
+	}
 }
