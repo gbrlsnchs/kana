@@ -7,7 +7,8 @@ katakana (カタカナ).
 Internally, it uses a finite-state machine in order to parse everything correctly and in the right
 order.
 
-## Example
+## Examples
+### Simple usage
 ```shell
 $ kana ohayougozaimasu
 おはようございます
@@ -22,6 +23,20 @@ that char again, then toggling back to the previous variant, and so on:
 ```shell
 $ kana --toggle-char=@ watashiha@gaburieru@desu
 わたしはガブリエルです
+```
+
+### Transliterating a multi-line file
+Kana can't read files, so it is necessary to pipe files through something like `xargs`:
+```shell
+$ cat file.txt
+hajimemashite
+@gaburieru@tomoshimasu
+douzoyoroshikuonegaishimasu
+
+$ cat file.txt | xargs --max-lines=1 kana
+はじめまして
+ガブリエルともします
+どうぞよろしくおねがいします
 ```
 
 ## Building from source
