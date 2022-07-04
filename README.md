@@ -15,7 +15,16 @@ $ kana --katakana suupaa mario
 スーパー マリオ
 ```
 
-## Building
+### Toggling between kanas
+It's possible to toggle between kanas if a toggle char is informed to `--toggle-char`. Whenever the
+parser hits the informed char, it will toggle between kanas, using the other variant until it hits
+that char again, then toggling back to the previous variant, and so on:
+```shell
+$ kana --toggle-char=@ watashiha@gaburieru@desu
+わたしはガブリエルです
+```
+
+## Building from source
 Since this project is written in Rust, you need to build it with `cargo`:
 ```shell
 $ cargo build --release --frozen
