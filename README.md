@@ -33,7 +33,7 @@ hajimemashite
 @gaburieru@tomoshimasu
 douzoyoroshikuonegaishimasu
 
-$ cat file.txt | xargs --max-lines=1 kana
+$ cat file.txt | xargs --max-lines=1 kana --toggle-char=@
 はじめまして
 ガブリエルともします
 どうぞよろしくおねがいします
