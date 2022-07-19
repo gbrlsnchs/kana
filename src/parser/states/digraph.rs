@@ -75,11 +75,7 @@ mod tests {
 	fn test_regular_match() {
 		let current = Digraph("foobar", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("foo", "@");
-				m
-			},
+			syllabograms: HashMap::from([("foo", "@")]),
 			..Default::default()
 		};
 		let (result, next) = current.next(&table);
@@ -92,18 +88,10 @@ mod tests {
 	fn test_match_with_choonpu() {
 		let current = Digraph("olaa", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("ola", "@");
-				m
-			},
+			syllabograms: HashMap::from([("ola", "@")]),
 			graphemes: Graphemes {
 				choonpu: Some(Grapheme {
-					matches: {
-						let mut s = HashSet::new();
-						s.insert("aa");
-						s
-					},
+					matches: HashSet::from(["aa"]),
 					graph: "!",
 				}),
 				..Default::default()

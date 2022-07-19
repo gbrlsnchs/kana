@@ -44,12 +44,7 @@ mod tests {
 	fn test_output_hiragana() -> Result {
 		let mut out = Vec::new();
 		let args = Args {
-			words: {
-				let mut v = Vec::new();
-				v.push("arigatougozaimasu!".into());
-				v.push("itadakimasu!".into());
-				v
-			},
+			words: Vec::from(["arigatougozaimasu!".into(), "itadakimasu!".into()]),
 			..Default::default()
 		};
 
@@ -68,12 +63,7 @@ mod tests {
 		let mut out = Vec::new();
 		let args = Args {
 			katakana: true,
-			words: {
-				let mut v = Vec::new();
-				v.push("arigatougozaimasu!".into());
-				v.push("itadakimasu!".into());
-				v
-			},
+			words: Vec::from(["arigatougozaimasu!".into(), "itadakimasu!".into()]),
 			..Default::default()
 		};
 

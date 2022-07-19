@@ -137,12 +137,7 @@ mod tests {
 		let hiragana: KanaTable = toml::de::from_str(hiragana)?;
 		let katakana: KanaTable = toml::de::from_str(katakana)?;
 
-		let tables = {
-			let mut m = HashMap::new();
-			m.insert(false, &hiragana);
-			m.insert(true, &katakana);
-			m
-		};
+		let tables = HashMap::from([(false, &hiragana), (true, &katakana)]);
 
 		// Test against all hiragana syllabograms.
 		for (input, want) in &hiragana.syllabograms {
@@ -155,20 +150,18 @@ mod tests {
 		}
 
 		// Test against real cases.
-		let word_table = {
-			let mut m = HashMap::new();
-			m.insert("chottomatte", "ちょっとまって");
-			m.insert(
+		let word_table = HashMap::from([
+			("chottomatte", "ちょっとまって"),
+			(
 				"nikugazenzensukijaarimasen",
 				"にくがぜんぜんすきじゃありません",
-			);
-			m.insert("wwwwwww", "wwwwwww");
-			m.insert("日本", "日本");
-			m.insert("nihon", "にほん");
-			m.insert("12jinitabemasu!", "12じにたべます!");
-			m.insert("123 GO!", "123 GO!");
-			m
-		};
+			),
+			("wwwwwww", "wwwwwww"),
+			("日本", "日本"),
+			("nihon", "にほん"),
+			("12jinitabemasu!", "12じにたべます!"),
+			("123 GO!", "123 GO!"),
+		]);
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> = Machine::start(&tables, (false, None), input, |result| {
@@ -180,11 +173,7 @@ mod tests {
 		}
 
 		// Test against real cases with toggling.
-		let word_table = {
-			let mut m = HashMap::new();
-			m.insert("watashiha@gaburieru@desu", "わたしはガブリエルです");
-			m
-		};
+		let word_table = HashMap::from([("watashiha@gaburieru@desu", "わたしはガブリエルです")]);
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> =
@@ -205,12 +194,7 @@ mod tests {
 		let hiragana: KanaTable = toml::de::from_str(hiragana)?;
 		let katakana: KanaTable = toml::de::from_str(katakana)?;
 
-		let tables = {
-			let mut m = HashMap::new();
-			m.insert(false, &hiragana);
-			m.insert(true, &katakana);
-			m
-		};
+		let tables = HashMap::from([(false, &hiragana), (true, &katakana)]);
 
 		// Test against all katakana syllabograms.
 		for (input, want) in &katakana.syllabograms {
@@ -223,19 +207,17 @@ mod tests {
 		}
 
 		// Test against real cases.
-		let word_table = {
-			let mut m = HashMap::new();
-			m.insert("oomen", "オーメン");
-			m.insert("tsyuu", "ツュー");
-			m.insert("suupaamario", "スーパーマリオ");
-			m.insert("pureisuteeshon", "プレイステーション");
-			m.insert("monkii D. rufi", "モンキー D. ルフィ");
-			m.insert("wwwwwww", "wwwwwww");
-			m.insert("supagetti", "スパゲッティ");
-			m.insert("日本", "日本");
-			m.insert("123 GO!", "123 GO!");
-			m
-		};
+		let word_table = HashMap::from([
+			("oomen", "オーメン"),
+			("tsyuu", "ツュー"),
+			("suupaamario", "スーパーマリオ"),
+			("pureisuteeshon", "プレイステーション"),
+			("monkii D. rufi", "モンキー D. ルフィ"),
+			("wwwwwww", "wwwwwww"),
+			("supagetti", "スパゲッティ"),
+			("日本", "日本"),
+			("123 GO!", "123 GO!"),
+		]);
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> = Machine::start(&tables, (true, None), input, |result| {
@@ -247,11 +229,7 @@ mod tests {
 		}
 
 		// Test against real cases with toggling.
-		let word_table = {
-			let mut m = HashMap::new();
-			m.insert("watashiha@gaburieru@desu", "ワタシハがぶりえるデス");
-			m
-		};
+		let word_table = HashMap::from([("watashiha@gaburieru@desu", "ワタシハがぶりえるデス")]);
 
 		for (input, want) in word_table {
 			let result: Result<(), ()> =

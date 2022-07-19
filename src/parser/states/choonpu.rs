@@ -102,18 +102,10 @@ mod tests {
 	fn test_regular_match() {
 		let current = Choonpu("oomen", None, false);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("omen", "@");
-				m
-			},
+			syllabograms: HashMap::from([("omen", "@")]),
 			graphemes: Graphemes {
 				choonpu: Some(Grapheme {
-					matches: {
-						let mut s = HashSet::new();
-						s.insert("oo");
-						s
-					},
+					matches: HashSet::from(["oo"]),
 					graph: "~",
 				}),
 				..Default::default()

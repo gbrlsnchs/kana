@@ -72,18 +72,10 @@ mod tests {
 	fn test_regular_match() {
 		let current = Sukuon("tto", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("to", "@");
-				m
-			},
+			syllabograms: HashMap::from([("to", "@")]),
 			graphemes: Graphemes {
 				sukuon: Grapheme {
-					matches: {
-						let mut s = HashSet::new();
-						s.insert("tt");
-						s
-					},
+					matches: HashSet::from(["tt"]),
 					graph: "+",
 				},
 				..Default::default()

@@ -91,11 +91,7 @@ mod tests {
 	fn test_regular_match() {
 		let current = Nasal("abc", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("a", "@");
-				m
-			},
+			syllabograms: HashMap::from([("a", "@")]),
 			..Default::default()
 		};
 		let (result, next) = current.next(&table);
@@ -108,18 +104,10 @@ mod tests {
 	fn test_match_with_choonpu() {
 		let current = Nasal("oomen", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("o", "@");
-				m
-			},
+			syllabograms: HashMap::from([("o", "@")]),
 			graphemes: Graphemes {
 				choonpu: Some(Grapheme {
-					matches: {
-						let mut s = HashSet::new();
-						s.insert("oo");
-						s
-					},
+					matches: HashSet::from([("oo")]),
 					graph: "!",
 				}),
 				..Default::default()

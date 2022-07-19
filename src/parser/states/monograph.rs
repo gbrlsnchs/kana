@@ -75,11 +75,7 @@ mod tests {
 	fn test_regular_match() {
 		let current = Monograph("test", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("te", "@");
-				m
-			},
+			syllabograms: HashMap::from([("te", "@")]),
 			..Default::default()
 		};
 		let (result, next) = current.next(&table);
@@ -92,18 +88,10 @@ mod tests {
 	fn test_match_with_choonpu() {
 		let current = Monograph("oii", None);
 		let table = KanaTable {
-			syllabograms: {
-				let mut m = HashMap::new();
-				m.insert("oi", "@");
-				m
-			},
+			syllabograms: HashMap::from([("oi", "@")]),
 			graphemes: Graphemes {
 				choonpu: Some(Grapheme {
-					matches: {
-						let mut s = HashSet::new();
-						s.insert("ii");
-						s
-					},
+					matches: HashSet::from(["ii"]),
 					graph: "!",
 				}),
 				..Default::default()
