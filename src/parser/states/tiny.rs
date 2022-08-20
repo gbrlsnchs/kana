@@ -6,7 +6,7 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, KanaToggle, Sukuon, Syllabogram, CHOONPU_SIZE, SHORT_SIZE};
+use super::{Choonpu, Sukuon, Syllabogram, Toggle, CHOONPU_SIZE, KANA_TOGGLE, SHORT_SIZE};
 
 pub const SIZE: usize = 1;
 
@@ -28,7 +28,7 @@ impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
 			if table.graphemes.choonpu.is_some() {
 				Choonpu::prev(self).into()
 			} else {
-				KanaToggle::prev(self).into()
+				Toggle::<KANA_TOGGLE>::prev(self).into()
 			},
 		)
 	}
@@ -64,8 +64,8 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word<'a>() {
-		let current = Syllabogram::<'a, SIZE>("", None);
+	fn test_small_word() {
+		let current = Syllabogram::<SIZE>("", None);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
@@ -73,20 +73,20 @@ mod tests {
 	}
 
 	#[test]
-	fn test_no_match<'a>() {
-		let current = Syllabogram::<'a, SIZE>("a", None);
+	fn test_no_match() {
+		let current = Syllabogram::<SIZE>("a", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		// This state returns the original query if nothing is found, since it's essentially the
 		// last parsing step, this way preserving untranslatable characters prev the original word.
 		assert_eq!(result, Some("a"));
-		assert_eq!(next, KanaToggle("", None, false).into());
+		assert_eq!(next, Toggle::<KANA_TOGGLE>("", None, false).into());
 	}
 
 	#[test]
-	fn test_regular_match<'a>() {
-		let current = Syllabogram::<'a, SIZE>("abc", None);
+	fn test_regular_match() {
+		let current = Syllabogram::<SIZE>("abc", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("a", "@")]),
 			..Default::default()
@@ -94,12 +94,12 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, KanaToggle("bc", None, false).into());
+		assert_eq!(next, Toggle::<KANA_TOGGLE>("bc", None, false).into());
 	}
 
 	#[test]
-	fn test_match_with_choonpu<'a>() {
-		let current = Syllabogram::<'a, SIZE>("oomen", None);
+	fn test_match_with_choonpu() {
+		let current = Syllabogram::<SIZE>("oomen", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("o", "@")]),
 			graphemes: Graphemes {
@@ -118,38 +118,38 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_monograph<'a>() {
+	fn test_prev_monograph() {
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Syllabogram::<'a, SHORT_SIZE>("testing", None)),
-			Syllabogram::<'a, SIZE>("testing", None),
+			Syllabogram::<SIZE>::prev(Syllabogram::<SHORT_SIZE>("testing", None)),
+			Syllabogram::<SIZE>("testing", None),
 		);
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Syllabogram::<'a, SHORT_SIZE>("testing", Some('@'))),
-			Syllabogram::<'a, SIZE>("testing", Some('@')),
-		);
-	}
-
-	#[test]
-	fn test_prev_sukuon<'a>() {
-		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", None)),
-			Syllabogram::<'a, SIZE>("testing", None)
-		);
-		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", Some('@'))),
-			Syllabogram::<'a, SIZE>("testing", Some('@')),
+			Syllabogram::<SIZE>::prev(Syllabogram::<SHORT_SIZE>("testing", Some('@'))),
+			Syllabogram::<SIZE>("testing", Some('@')),
 		);
 	}
 
 	#[test]
-	fn test_prev_choonpu<'a>() {
+	fn test_prev_sukuon() {
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Choonpu("testing", None, false)),
-			Syllabogram::<'a, SIZE>("esting", None),
+			Syllabogram::<SIZE>::prev(Sukuon("testing", None)),
+			Syllabogram::<SIZE>("testing", None)
 		);
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(Choonpu("testing", Some('@'), false)),
-			Syllabogram::<'a, SIZE>("esting", Some('@')),
+			Syllabogram::<SIZE>::prev(Sukuon("testing", Some('@'))),
+			Syllabogram::<SIZE>("testing", Some('@')),
+		);
+	}
+
+	#[test]
+	fn test_prev_choonpu() {
+		assert_eq!(
+			Syllabogram::<SIZE>::prev(Choonpu("testing", None, false)),
+			Syllabogram::<SIZE>("esting", None),
+		);
+		assert_eq!(
+			Syllabogram::<SIZE>::prev(Choonpu("testing", Some('@'), false)),
+			Syllabogram::<SIZE>("esting", Some('@')),
 		);
 	}
 }

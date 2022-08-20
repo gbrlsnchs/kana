@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use crate::config::KanaTable;
 
 use super::states::{
-	Choonpu, KanaToggle, Sukuon, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE,
+	Choonpu, Sukuon, Syllabogram, Toggle, KANA_TOGGLE, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE,
+	TINY_SIZE,
 };
 
 pub type NextState<'a> = Option<State<'a>>;
@@ -16,7 +17,7 @@ pub enum State<'a> {
 	Tiny(Syllabogram<'a, TINY_SIZE>),
 	Sukuon(Sukuon<'a>),
 	Choonpu(Choonpu<'a>),
-	KanaToggle(KanaToggle<'a>),
+	Toggle(Toggle<'a, KANA_TOGGLE>),
 }
 
 pub struct Machine;
@@ -33,7 +34,7 @@ impl Machine {
 	{
 		let (mut katakana, toggle_char) = toggles;
 		let mut table = tables.get(&katakana).unwrap();
-		let mut state = State::KanaToggle(KanaToggle(word, toggle_char, false));
+		let mut state = State::Toggle(Toggle::<KANA_TOGGLE>(word, toggle_char, false));
 		let mut result = String::with_capacity(word.len() * 2);
 
 		loop {
@@ -44,8 +45,8 @@ impl Machine {
 				State::Tiny(s) => s.next(table),
 				State::Sukuon(s) => s.next(table),
 				State::Choonpu(s) => s.next(table),
-				State::KanaToggle(s) => {
-					let KanaToggle(_, _, matches) = s;
+				State::Toggle(s) => {
+					let Toggle::<KANA_TOGGLE>(_, _, matches) = s;
 
 					if matches {
 						katakana = !katakana;
@@ -117,9 +118,9 @@ impl<'a> From<Choonpu<'a>> for NextState<'a> {
 	}
 }
 
-impl<'a> From<KanaToggle<'a>> for NextState<'a> {
-	fn from(state: KanaToggle<'a>) -> Self {
-		Some(State::KanaToggle(state))
+impl<'a> From<Toggle<'a, KANA_TOGGLE>> for NextState<'a> {
+	fn from(state: Toggle<'a, KANA_TOGGLE>) -> Self {
+		Some(State::Toggle(state))
 	}
 }
 

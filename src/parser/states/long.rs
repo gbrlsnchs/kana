@@ -6,7 +6,7 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, KanaToggle, Sukuon, Syllabogram};
+use super::{Choonpu, Sukuon, Syllabogram, Toggle, KANA_TOGGLE};
 
 pub const SIZE: usize = 4;
 
@@ -27,15 +27,15 @@ impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
 				if table.graphemes.choonpu.is_some() {
 					Choonpu::prev(self).into()
 				} else {
-					KanaToggle::prev(self).into()
+					Toggle::<KANA_TOGGLE>::prev(self).into()
 				},
 			),
 		}
 	}
 }
 
-impl<'a> Previous<'a, KanaToggle<'a>> for Syllabogram<'a, SIZE> {
-	fn prev(state: KanaToggle<'a>) -> Self {
+impl<'a> Previous<'a, Toggle<'a, KANA_TOGGLE>> for Syllabogram<'a, SIZE> {
+	fn prev(state: Toggle<'a, KANA_TOGGLE>) -> Self {
 		Self(state.0, state.1)
 	}
 }
@@ -49,8 +49,8 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word<'a>() {
-		let current = Syllabogram::<'a, SIZE>("テスト", None);
+	fn test_small_word() {
+		let current = Syllabogram::<SIZE>("テスト", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
@@ -59,8 +59,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_no_match<'a>() {
-		let current = Syllabogram::<'a, SIZE>("testing", None);
+	fn test_no_match() {
+		let current = Syllabogram::<SIZE>("testing", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
@@ -69,8 +69,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_regular_match<'a>() {
-		let current = Syllabogram::<'a, SIZE>("testing", None);
+	fn test_regular_match() {
+		let current = Syllabogram::<SIZE>("testing", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("test", "@")]),
 			..Default::default()
@@ -78,12 +78,12 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("@"));
-		assert_eq!(next, KanaToggle("ing", None, false).into());
+		assert_eq!(next, Toggle::<KANA_TOGGLE>("ing", None, false).into());
 	}
 
 	#[test]
-	fn test_match_with_choonpu<'a>() {
-		let current = Syllabogram::<'a, SIZE>("yahoo", None);
+	fn test_match_with_choonpu() {
+		let current = Syllabogram::<SIZE>("yahoo", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("yaho", "@")]),
 			graphemes: Graphemes {
@@ -102,14 +102,14 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_kana_toggle<'a>() {
+	fn test_prev_kana_toggle() {
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(KanaToggle("testing", None, true)),
-			Syllabogram::<'a, SIZE>("testing", None),
+			Syllabogram::<SIZE>::prev(Toggle::<KANA_TOGGLE>("testing", None, true)),
+			Syllabogram::<SIZE>("testing", None),
 		);
 		assert_eq!(
-			Syllabogram::<'a, SIZE>::prev(KanaToggle("testing", Some('@'), true)),
-			Syllabogram::<'a, SIZE>("testing", Some('@')),
+			Syllabogram::<SIZE>::prev(Toggle::<KANA_TOGGLE>("testing", Some('@'), true)),
+			Syllabogram::<SIZE>("testing", Some('@')),
 		);
 	}
 }

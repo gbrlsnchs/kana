@@ -6,7 +6,7 @@ use crate::{
 	},
 };
 
-use super::{KanaToggle, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE};
+use super::{Syllabogram, Toggle, KANA_TOGGLE, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE};
 
 pub const SIZE: usize = 2;
 
@@ -27,11 +27,14 @@ impl<'a> Next<'a> for Choonpu<'a> {
 			if choonpu.matches.contains(query) {
 				self.2 = true;
 
-				return (Some(choonpu.graph), KanaToggle::prev(self).into());
+				return (
+					Some(choonpu.graph),
+					Toggle::<KANA_TOGGLE>::prev(self).into(),
+				);
 			}
 		}
 
-		(None, KanaToggle::prev(self).into())
+		(None, Toggle::<KANA_TOGGLE>::prev(self).into())
 	}
 }
 
@@ -80,12 +83,12 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word<'a>() {
+	fn test_small_word() {
 		let current = Choonpu("ツ", None, false);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
-		assert_eq!((None, Syllabogram::<'a, TINY_SIZE>("", None).into()), next);
+		assert_eq!((None, Syllabogram::<TINY_SIZE>("", None).into()), next);
 	}
 
 	#[test]
@@ -95,7 +98,7 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, KanaToggle("omen", None, false).into());
+		assert_eq!(next, Toggle::<KANA_TOGGLE>("omen", None, false).into());
 	}
 
 	#[test]
@@ -114,53 +117,53 @@ mod tests {
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, Some("~"));
-		assert_eq!(next, KanaToggle("men", None, false).into());
+		assert_eq!(next, Toggle::<KANA_TOGGLE>("men", None, false).into());
 	}
 
 	#[test]
-	fn test_prev_long_digraph<'a>() {
+	fn test_prev_long_long() {
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, LONG_SIZE>("testing", None)),
+			Choonpu::prev(Syllabogram::<LONG_SIZE>("testing", None)),
 			Choonpu("ting", None, false),
 		);
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, LONG_SIZE>("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<LONG_SIZE>("testing", Some('@'))),
 			Choonpu("ting", Some('@'), false),
 		);
 	}
 
 	#[test]
-	fn test_prev_digraph<'a>() {
+	fn test_prev_medium() {
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", None)),
+			Choonpu::prev(Syllabogram::<MEDIUM_SIZE>("testing", None)),
 			Choonpu("sting", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<MEDIUM_SIZE>("testing", Some('@'))),
 			Choonpu("sting", Some('@'), false)
 		);
 	}
 
 	#[test]
-	fn test_prev_monograph<'a>() {
+	fn test_prev_short() {
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, SHORT_SIZE>("testing", None)),
+			Choonpu::prev(Syllabogram::<SHORT_SIZE>("testing", None)),
 			Choonpu("esting", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, SHORT_SIZE>("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<SHORT_SIZE>("testing", Some('@'))),
 			Choonpu("esting", Some('@'), false)
 		);
 	}
 
 	#[test]
-	fn test_prev_nasal<'a>() {
+	fn test_prev_tiny() {
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, TINY_SIZE>("testing", None)),
+			Choonpu::prev(Syllabogram::<TINY_SIZE>("testing", None)),
 			Choonpu("testing", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Syllabogram::<'a, TINY_SIZE>("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<TINY_SIZE>("testing", Some('@'))),
 			Choonpu("testing", Some('@'), false)
 		);
 	}

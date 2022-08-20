@@ -7,16 +7,14 @@ use crate::{
 };
 
 use super::{
-	Choonpu, Sukuon, Syllabogram, CHOONPU_SIZE, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, SUKUON_SIZE,
-	TINY_SIZE,
+	toggle::{Type as ToggleType, SIZE},
+	Choonpu, Sukuon, Syllabogram, Toggle, CHOONPU_SIZE, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE,
+	SUKUON_SIZE, TINY_SIZE,
 };
 
-pub const SIZE: usize = 1;
+pub const TYPE: usize = ToggleType::Kana as usize;
 
-#[derive(Debug, PartialEq)]
-pub struct KanaToggle<'a>(pub &'a str, pub Option<char>, pub bool);
-
-impl<'a> Next<'a> for KanaToggle<'a> {
+impl<'a> Next<'a> for Toggle<'a, TYPE> {
 	fn next(self, _: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
@@ -28,13 +26,13 @@ impl<'a> Next<'a> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Self> for KanaToggle<'a> {
-	fn prev(state: KanaToggle<'a>) -> Self {
+impl<'a> Previous<'a, Self> for Toggle<'a, SIZE> {
+	fn prev(state: Toggle<'a, SIZE>) -> Self {
 		Self(util::utf8_word_slice_from(state.0, SIZE), state.1, true)
 	}
 }
 
-impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for Toggle<'a, SIZE> {
 	fn prev(state: Syllabogram<'a, LONG_SIZE>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, LONG_SIZE),
@@ -44,7 +42,7 @@ impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for Toggle<'a, SIZE> {
 	fn prev(state: Syllabogram<'a, MEDIUM_SIZE>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, MEDIUM_SIZE),
@@ -54,7 +52,7 @@ impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for Toggle<'a, SIZE> {
 	fn prev(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, SHORT_SIZE),
@@ -64,7 +62,7 @@ impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for Toggle<'a, SIZE> {
 	fn prev(state: Syllabogram<'a, TINY_SIZE>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, TINY_SIZE),
@@ -74,7 +72,7 @@ impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Sukuon<'a>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Sukuon<'a>> for Toggle<'a, SIZE> {
 	fn prev(state: Sukuon<'a>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, SUKUON_SIZE - 1),
@@ -84,7 +82,7 @@ impl<'a> Previous<'a, Sukuon<'a>> for KanaToggle<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Choonpu<'a>> for KanaToggle<'a> {
+impl<'a> Previous<'a, Choonpu<'a>> for Toggle<'a, SIZE> {
 	fn prev(state: Choonpu<'a>) -> Self {
 		Self(
 			util::utf8_word_slice_from(
@@ -106,134 +104,131 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_no_match_none<'a>() {
-		let current = KanaToggle("testing", None, false);
+	fn test_no_match_none() {
+		let current = Toggle::<TYPE>("testing", None, false);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Syllabogram::<'a, LONG_SIZE>("testing", None).into());
+		assert_eq!(next, Syllabogram::<LONG_SIZE>("testing", None).into());
 	}
 	#[test]
-	fn test_no_match_mismatch<'a>() {
-		let current = KanaToggle("@testing", Some('+'), false);
+	fn test_no_match_mismatch() {
+		let current = Toggle::<TYPE>("@testing", Some('+'), false);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(
-			next,
-			Syllabogram::<'a, LONG_SIZE>("@testing", Some('+')).into()
-		);
+		assert_eq!(next, Syllabogram::<LONG_SIZE>("@testing", Some('+')).into());
 	}
 
 	#[test]
 	fn test_match() {
-		let current = KanaToggle("@testing", Some('@'), false);
+		let current = Toggle::<TYPE>("@testing", Some('@'), false);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, KanaToggle("testing", Some('@'), true).into());
+		assert_eq!(next, Toggle::<TYPE>("testing", Some('@'), true).into());
 	}
 
 	#[test]
 	fn test_prev_kana_toggle() {
 		assert_eq!(
-			KanaToggle::prev(KanaToggle("@testing", None, false)),
-			KanaToggle("testing", None, true),
+			Toggle::<TYPE>::prev(Toggle::<TYPE>("@testing", None, false)),
+			Toggle::<TYPE>("testing", None, true),
 		);
 		assert_eq!(
-			KanaToggle::prev(KanaToggle("@testing", Some('@'), false)),
-			KanaToggle("testing", Some('@'), true),
+			Toggle::<TYPE>::prev(Toggle::<TYPE>("@testing", Some('@'), false)),
+			Toggle::<TYPE>("testing", Some('@'), true),
 		);
 		assert_eq!(
-			KanaToggle::prev(KanaToggle("@testing", None, true)),
-			KanaToggle("testing", None, true),
+			Toggle::<TYPE>::prev(Toggle::<TYPE>("@testing", None, true)),
+			Toggle::<TYPE>("testing", None, true),
 		);
 		assert_eq!(
-			KanaToggle::prev(KanaToggle("@testing", Some('@'), true)),
-			KanaToggle("testing", Some('@'), true),
-		);
-	}
-
-	#[test]
-	fn test_prev_long_digraph<'a>() {
-		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, LONG_SIZE>("testing", None)),
-			KanaToggle("ing", None, false),
-		);
-		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, LONG_SIZE>("testing", Some('@'))),
-			KanaToggle("ing", Some('@'), false),
+			Toggle::<TYPE>::prev(Toggle::<TYPE>("@testing", Some('@'), true)),
+			Toggle::<TYPE>("testing", Some('@'), true),
 		);
 	}
 
 	#[test]
-	fn test_prev_digraph<'a>() {
+	fn test_prev_long_digraph() {
 		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", None)),
-			KanaToggle("ting", None, false),
+			Toggle::<TYPE>::prev(Syllabogram::<LONG_SIZE>("testing", None)),
+			Toggle::<TYPE>("ing", None, false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", Some('@'))),
-			KanaToggle("ting", Some('@'), false),
-		);
-	}
-
-	#[test]
-	fn test_prev_monograph<'a>() {
-		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, SHORT_SIZE>("testing", None)),
-			KanaToggle("sting", None, false),
-		);
-		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, SHORT_SIZE>("testing", Some('@'))),
-			KanaToggle("sting", Some('@'), false),
+			Toggle::<TYPE>::prev(Syllabogram::<LONG_SIZE>("testing", Some('@'))),
+			Toggle::<TYPE>("ing", Some('@'), false),
 		);
 	}
 
 	#[test]
-	fn test_prev_nasal<'a>() {
+	fn test_prev_digraph() {
 		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, TINY_SIZE>("testing", None)),
-			KanaToggle("esting", None, false),
+			Toggle::<TYPE>::prev(Syllabogram::<MEDIUM_SIZE>("testing", None)),
+			Toggle::<TYPE>("ting", None, false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Syllabogram::<'a, TINY_SIZE>("testing", Some('@'))),
-			KanaToggle("esting", Some('@'), false),
+			Toggle::<TYPE>::prev(Syllabogram::<MEDIUM_SIZE>("testing", Some('@'))),
+			Toggle::<TYPE>("ting", Some('@'), false),
+		);
+	}
+
+	#[test]
+	fn test_prev_monograph() {
+		assert_eq!(
+			Toggle::<TYPE>::prev(Syllabogram::<SHORT_SIZE>("testing", None)),
+			Toggle::<TYPE>("sting", None, false),
+		);
+		assert_eq!(
+			Toggle::<TYPE>::prev(Syllabogram::<SHORT_SIZE>("testing", Some('@'))),
+			Toggle::<TYPE>("sting", Some('@'), false),
+		);
+	}
+
+	#[test]
+	fn test_prev_nasal() {
+		assert_eq!(
+			Toggle::<TYPE>::prev(Syllabogram::<TINY_SIZE>("testing", None)),
+			Toggle::<TYPE>("esting", None, false),
+		);
+		assert_eq!(
+			Toggle::<TYPE>::prev(Syllabogram::<TINY_SIZE>("testing", Some('@'))),
+			Toggle::<TYPE>("esting", Some('@'), false),
 		);
 	}
 
 	#[test]
 	fn test_prev_sukuon() {
 		assert_eq!(
-			KanaToggle::prev(Sukuon("testing", None)),
-			KanaToggle("esting", None, false),
+			Toggle::<TYPE>::prev(Sukuon("testing", None)),
+			Toggle::<TYPE>("esting", None, false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Sukuon("testing", Some('@'))),
-			KanaToggle("esting", Some('@'), false),
+			Toggle::<TYPE>::prev(Sukuon("testing", Some('@'))),
+			Toggle::<TYPE>("esting", Some('@'), false),
 		);
 	}
 
 	#[test]
 	fn test_prev_choonpu() {
 		assert_eq!(
-			KanaToggle::prev(Choonpu("testing", None, false)),
-			KanaToggle("esting", None, false),
+			Toggle::<TYPE>::prev(Choonpu("testing", None, false)),
+			Toggle::<TYPE>("esting", None, false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Choonpu("testing", Some('@'), false)),
-			KanaToggle("esting", Some('@'), false),
+			Toggle::<TYPE>::prev(Choonpu("testing", Some('@'), false)),
+			Toggle::<TYPE>("esting", Some('@'), false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Choonpu("testing", None, true)),
-			KanaToggle("sting", None, false),
+			Toggle::<TYPE>::prev(Choonpu("testing", None, true)),
+			Toggle::<TYPE>("sting", None, false),
 		);
 		assert_eq!(
-			KanaToggle::prev(Choonpu("testing", Some('@'), true)),
-			KanaToggle("sting", Some('@'), false),
+			Toggle::<TYPE>::prev(Choonpu("testing", Some('@'), true)),
+			Toggle::<TYPE>("sting", Some('@'), false),
 		);
 	}
 }
