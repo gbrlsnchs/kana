@@ -17,7 +17,7 @@ pub enum State<'a> {
 	Tiny(Syllabogram<'a, TINY_SIZE>),
 	Sukuon(Sukuon<'a>),
 	Choonpu(Choonpu<'a>),
-	Toggle(Toggle<'a, KANA_TOGGLE>),
+	ToggleKana(Toggle<'a, KANA_TOGGLE>),
 }
 
 pub struct Machine;
@@ -34,7 +34,7 @@ impl Machine {
 	{
 		let (mut katakana, toggle_char) = toggles;
 		let mut table = tables.get(&katakana).unwrap();
-		let mut state = State::Toggle(Toggle::<KANA_TOGGLE>(word, toggle_char, false));
+		let mut state = State::ToggleKana(Toggle::<KANA_TOGGLE>(word, toggle_char, false));
 		let mut result = String::with_capacity(word.len() * 2);
 
 		loop {
@@ -45,7 +45,7 @@ impl Machine {
 				State::Tiny(s) => s.next(table),
 				State::Sukuon(s) => s.next(table),
 				State::Choonpu(s) => s.next(table),
-				State::Toggle(s) => {
+				State::ToggleKana(s) => {
 					let Toggle::<KANA_TOGGLE>(_, _, matches) = s;
 
 					if matches {
@@ -120,7 +120,7 @@ impl<'a> From<Choonpu<'a>> for NextState<'a> {
 
 impl<'a> From<Toggle<'a, KANA_TOGGLE>> for NextState<'a> {
 	fn from(state: Toggle<'a, KANA_TOGGLE>) -> Self {
-		Some(State::Toggle(state))
+		Some(State::ToggleKana(state))
 	}
 }
 
