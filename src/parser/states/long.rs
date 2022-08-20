@@ -6,13 +6,12 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, KanaToggle, Sukuon};
+use super::{Choonpu, KanaToggle, Sukuon, Syllabogram};
 
-#[derive(Debug, PartialEq)]
-pub struct LongDigraph<'a>(pub &'a str, pub Option<char>);
+pub const SIZE: usize = 4;
 
-impl<'a> Next<'a> for LongDigraph<'a> {
-	const SIZE: usize = 4;
+impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
+	const SIZE: usize = SIZE;
 
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
@@ -37,7 +36,7 @@ impl<'a> Next<'a> for LongDigraph<'a> {
 	}
 }
 
-impl<'a> Previous<'a, KanaToggle<'a>> for LongDigraph<'a> {
+impl<'a> Previous<'a, KanaToggle<'a>> for Syllabogram<'a, SIZE> {
 	fn prev(state: KanaToggle<'a>) -> Self {
 		Self(state.0, state.1)
 	}
@@ -52,8 +51,8 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word() {
-		let current = LongDigraph("テスト", None);
+	fn test_small_word<'a>() {
+		let current = Syllabogram::<'a, SIZE>("テスト", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
@@ -62,8 +61,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_no_match() {
-		let current = LongDigraph("testing", None);
+	fn test_no_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("testing", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
@@ -72,8 +71,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_regular_match() {
-		let current = LongDigraph("testing", None);
+	fn test_regular_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("testing", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("test", "@")]),
 			..Default::default()
@@ -85,8 +84,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_match_with_choonpu() {
-		let current = LongDigraph("yahoo", None);
+	fn test_match_with_choonpu<'a>() {
+		let current = Syllabogram::<'a, SIZE>("yahoo", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("yaho", "@")]),
 			graphemes: Graphemes {
@@ -105,14 +104,14 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_kana_toggle() {
+	fn test_prev_kana_toggle<'a>() {
 		assert_eq!(
-			LongDigraph::prev(KanaToggle("testing", None, true)),
-			LongDigraph("testing", None),
+			Syllabogram::<'a, SIZE>::prev(KanaToggle("testing", None, true)),
+			Syllabogram::<'a, SIZE>("testing", None),
 		);
 		assert_eq!(
-			LongDigraph::prev(KanaToggle("testing", Some('@'), true)),
-			LongDigraph("testing", Some('@')),
+			Syllabogram::<'a, SIZE>::prev(KanaToggle("testing", Some('@'), true)),
+			Syllabogram::<'a, SIZE>("testing", Some('@')),
 		);
 	}
 }

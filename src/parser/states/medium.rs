@@ -6,25 +6,24 @@ use crate::{
 	},
 };
 
-use super::{monograph::Monograph, sukuon::Sukuon, Choonpu, KanaToggle};
+use super::{sukuon::Sukuon, Choonpu, KanaToggle, Syllabogram, SHORT_SIZE};
 
-#[derive(Debug, PartialEq)]
-pub struct Digraph<'a>(pub &'a str, pub Option<char>);
+pub const SIZE: usize = 3;
 
-impl<'a> Next<'a> for Digraph<'a> {
-	const SIZE: usize = 3;
+impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
+	const SIZE: usize = SIZE;
 
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
 		if util::utf8_word_count(word) < Self::SIZE {
-			return (None, Monograph::prev(self).into());
+			return (None, Syllabogram::<'a, SHORT_SIZE>::prev(self).into());
 		}
 
 		let query = util::utf8_word_slice_until(word, Self::SIZE);
 
 		match table.syllabograms.get(query) {
-			None => (None, Monograph::prev(self).into()),
+			None => (None, Syllabogram::<'a, SHORT_SIZE>::prev(self).into()),
 			Some(s) => (
 				Some(s),
 				if table.graphemes.choonpu.is_some() {
@@ -37,9 +36,9 @@ impl<'a> Next<'a> for Digraph<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Sukuon<'a>> for Digraph<'a> {
+impl<'a> Previous<'a, Sukuon<'a>> for Syllabogram<'a, SIZE> {
 	fn prev(state: Sukuon<'a>) -> Self {
-		Digraph(state.0, state.1)
+		Self(state.0, state.1)
 	}
 }
 
@@ -52,28 +51,28 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word() {
-		let current = Digraph("oi", None);
+	fn test_small_word<'a>() {
+		let current = Syllabogram::<'a, SIZE>("oi", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Monograph("oi", None).into());
+		assert_eq!(next, Syllabogram::<'a, SHORT_SIZE>("oi", None).into());
 	}
 
 	#[test]
-	fn test_no_match() {
-		let current = Digraph("alo", None);
+	fn test_no_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("alo", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
 		assert_eq!(result, None);
-		assert_eq!(next, Monograph("alo", None).into());
+		assert_eq!(next, Syllabogram::<'a, SHORT_SIZE>("alo", None).into());
 	}
 
 	#[test]
-	fn test_regular_match() {
-		let current = Digraph("foobar", None);
+	fn test_regular_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("foobar", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("foo", "@")]),
 			..Default::default()
@@ -85,8 +84,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_match_with_choonpu() {
-		let current = Digraph("olaa", None);
+	fn test_match_with_choonpu<'a>() {
+		let current = Syllabogram::<'a, SIZE>("olaa", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("ola", "@")]),
 			graphemes: Graphemes {
@@ -105,14 +104,14 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_sukuon() {
+	fn test_prev_sukuon<'a>() {
 		assert_eq!(
-			Digraph::prev(Sukuon("testing", None)),
-			Digraph("testing", None)
+			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", None)),
+			Syllabogram::<'a, SIZE>("testing", None)
 		);
 		assert_eq!(
-			Digraph::prev(Sukuon("testing", Some('@'))),
-			Digraph("testing", Some('@')),
+			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", Some('@'))),
+			Syllabogram::<'a, SIZE>("testing", Some('@')),
 		);
 	}
 }

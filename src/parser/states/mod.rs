@@ -1,15 +1,17 @@
 mod choonpu;
-mod digraph;
 mod kana_toggle;
-mod long_digraph;
-mod monograph;
-mod nasal;
+mod long;
+mod medium;
+mod short;
 mod sukuon;
+mod syllabogram;
+mod tiny;
 
 pub use choonpu::Choonpu;
-pub use digraph::Digraph;
 pub use kana_toggle::KanaToggle;
-pub use long_digraph::LongDigraph;
-pub use monograph::Monograph;
-pub use nasal::Nasal;
+pub use long::SIZE as LONG_SIZE;
+pub use medium::SIZE as MEDIUM_SIZE;
+pub use short::SIZE as SHORT_SIZE;
 pub use sukuon::Sukuon;
+pub use syllabogram::Syllabogram;
+pub use tiny::SIZE as TINY_SIZE;

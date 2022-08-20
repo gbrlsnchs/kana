@@ -6,13 +6,12 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, KanaToggle, Monograph, Sukuon};
+use super::{Choonpu, KanaToggle, Sukuon, Syllabogram, SHORT_SIZE};
 
-#[derive(Debug, PartialEq)]
-pub struct Nasal<'a>(pub &'a str, pub Option<char>);
+pub const SIZE: usize = 1;
 
-impl<'a> Next<'a> for Nasal<'a> {
-	const SIZE: usize = 1;
+impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
+	const SIZE: usize = SIZE;
 
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
@@ -37,19 +36,19 @@ impl<'a> Next<'a> for Nasal<'a> {
 	}
 }
 
-impl<'a> Previous<'a, Monograph<'a>> for Nasal<'a> {
-	fn prev(state: Monograph<'a>) -> Self {
+impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for Syllabogram<'a, SIZE> {
+	fn prev(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
 		Self(state.0, state.1)
 	}
 }
 
-impl<'a> Previous<'a, Sukuon<'a>> for Nasal<'a> {
+impl<'a> Previous<'a, Sukuon<'a>> for Syllabogram<'a, SIZE> {
 	fn prev(state: Sukuon<'a>) -> Self {
 		Self(state.0, state.1)
 	}
 }
 
-impl<'a> Previous<'a, Choonpu<'a>> for Nasal<'a> {
+impl<'a> Previous<'a, Choonpu<'a>> for Syllabogram<'a, SIZE> {
 	fn prev(state: Choonpu<'a>) -> Self {
 		Self(
 			util::utf8_word_slice_from(state.0, Choonpu::SIZE - 1),
@@ -67,8 +66,8 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word() {
-		let current = Nasal("", None);
+	fn test_small_word<'a>() {
+		let current = Syllabogram::<'a, SIZE>("", None);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
@@ -76,8 +75,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_no_match() {
-		let current = Nasal("a", None);
+	fn test_no_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("a", None);
 		let table = KanaTable::default();
 		let (result, next) = current.next(&table);
 
@@ -88,8 +87,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_regular_match() {
-		let current = Nasal("abc", None);
+	fn test_regular_match<'a>() {
+		let current = Syllabogram::<'a, SIZE>("abc", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("a", "@")]),
 			..Default::default()
@@ -101,8 +100,8 @@ mod tests {
 	}
 
 	#[test]
-	fn test_match_with_choonpu() {
-		let current = Nasal("oomen", None);
+	fn test_match_with_choonpu<'a>() {
+		let current = Syllabogram::<'a, SIZE>("oomen", None);
 		let table = KanaTable {
 			syllabograms: HashMap::from([("o", "@")]),
 			graphemes: Graphemes {
@@ -121,35 +120,38 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_monograph() {
+	fn test_prev_monograph<'a>() {
 		assert_eq!(
-			Nasal::prev(Monograph("testing", None)),
-			Nasal("testing", None),
+			Syllabogram::<'a, SIZE>::prev(Syllabogram::<'a, SHORT_SIZE>("testing", None)),
+			Syllabogram::<'a, SIZE>("testing", None),
 		);
 		assert_eq!(
-			Nasal::prev(Monograph("testing", Some('@'))),
-			Nasal("testing", Some('@')),
-		);
-	}
-
-	#[test]
-	fn test_prev_sukuon() {
-		assert_eq!(Nasal::prev(Sukuon("testing", None)), Nasal("testing", None));
-		assert_eq!(
-			Nasal::prev(Sukuon("testing", Some('@'))),
-			Nasal("testing", Some('@')),
+			Syllabogram::<'a, SIZE>::prev(Syllabogram::<'a, SHORT_SIZE>("testing", Some('@'))),
+			Syllabogram::<'a, SIZE>("testing", Some('@')),
 		);
 	}
 
 	#[test]
-	fn test_prev_choonpu() {
+	fn test_prev_sukuon<'a>() {
 		assert_eq!(
-			Nasal::prev(Choonpu("testing", None, false)),
-			Nasal("esting", None),
+			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", None)),
+			Syllabogram::<'a, SIZE>("testing", None)
 		);
 		assert_eq!(
-			Nasal::prev(Choonpu("testing", Some('@'), false)),
-			Nasal("esting", Some('@')),
+			Syllabogram::<'a, SIZE>::prev(Sukuon("testing", Some('@'))),
+			Syllabogram::<'a, SIZE>("testing", Some('@')),
+		);
+	}
+
+	#[test]
+	fn test_prev_choonpu<'a>() {
+		assert_eq!(
+			Syllabogram::<'a, SIZE>::prev(Choonpu("testing", None, false)),
+			Syllabogram::<'a, SIZE>("esting", None),
+		);
+		assert_eq!(
+			Syllabogram::<'a, SIZE>::prev(Choonpu("testing", Some('@'), false)),
+			Syllabogram::<'a, SIZE>("esting", Some('@')),
 		);
 	}
 }

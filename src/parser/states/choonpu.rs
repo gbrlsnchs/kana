@@ -6,7 +6,7 @@ use crate::{
 	},
 };
 
-use super::{Digraph, KanaToggle, LongDigraph, Monograph, Nasal};
+use super::{KanaToggle, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE};
 
 #[derive(Debug, PartialEq)]
 pub struct Choonpu<'a>(pub &'a str, pub Option<char>, pub bool);
@@ -18,7 +18,7 @@ impl<'a> Next<'a> for Choonpu<'a> {
 		let word = self.0;
 
 		if util::utf8_word_count(word) < Self::SIZE {
-			return (None, Nasal::prev(self).into());
+			return (None, Syllabogram::<'a, TINY_SIZE>::prev(self).into());
 		}
 
 		let query = util::utf8_word_slice_until(word, Self::SIZE);
@@ -35,38 +35,38 @@ impl<'a> Next<'a> for Choonpu<'a> {
 	}
 }
 
-impl<'a> Previous<'a, LongDigraph<'a>> for Choonpu<'a> {
-	fn prev(state: LongDigraph<'a>) -> Self {
+impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for Choonpu<'a> {
+	fn prev(state: Syllabogram<'a, LONG_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, LongDigraph::SIZE - 1),
+			util::utf8_word_slice_from(state.0, Syllabogram::<'a, LONG_SIZE>::SIZE - 1),
 			state.1,
 			false,
 		)
 	}
 }
 
-impl<'a> Previous<'a, Digraph<'a>> for Choonpu<'a> {
-	fn prev(state: Digraph<'a>) -> Self {
+impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for Choonpu<'a> {
+	fn prev(state: Syllabogram<'a, MEDIUM_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Digraph::SIZE - 1),
+			util::utf8_word_slice_from(state.0, Syllabogram::<'a, MEDIUM_SIZE>::SIZE - 1),
 			state.1,
 			false,
 		)
 	}
 }
 
-impl<'a> Previous<'a, Monograph<'a>> for Choonpu<'a> {
-	fn prev(state: Monograph<'a>) -> Self {
+impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for Choonpu<'a> {
+	fn prev(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Monograph::SIZE - 1),
+			util::utf8_word_slice_from(state.0, Syllabogram::<'a, SHORT_SIZE>::SIZE - 1),
 			state.1,
 			false,
 		)
 	}
 }
 
-impl<'a> Previous<'a, Nasal<'a>> for Choonpu<'a> {
-	fn prev(state: Nasal<'a>) -> Self {
+impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for Choonpu<'a> {
+	fn prev(state: Syllabogram<'a, TINY_SIZE>) -> Self {
 		Self(state.0, state.1, false)
 	}
 }
@@ -80,12 +80,12 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_small_word() {
+	fn test_small_word<'a>() {
 		let current = Choonpu("ツ", None, false);
 		let table = KanaTable::default();
 		let next = current.next(&table);
 
-		assert_eq!((None, Nasal("", None).into()), next);
+		assert_eq!((None, Syllabogram::<'a, TINY_SIZE>("", None).into()), next);
 	}
 
 	#[test]
@@ -118,49 +118,49 @@ mod tests {
 	}
 
 	#[test]
-	fn test_prev_long_digraph() {
+	fn test_prev_long_digraph<'a>() {
 		assert_eq!(
-			Choonpu::prev(LongDigraph("testing", None)),
+			Choonpu::prev(Syllabogram::<'a, LONG_SIZE>("testing", None)),
 			Choonpu("ting", None, false),
 		);
 		assert_eq!(
-			Choonpu::prev(LongDigraph("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<'a, LONG_SIZE>("testing", Some('@'))),
 			Choonpu("ting", Some('@'), false),
 		);
 	}
 
 	#[test]
-	fn test_prev_digraph() {
+	fn test_prev_digraph<'a>() {
 		assert_eq!(
-			Choonpu::prev(Digraph("testing", None)),
+			Choonpu::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", None)),
 			Choonpu("sting", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Digraph("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<'a, MEDIUM_SIZE>("testing", Some('@'))),
 			Choonpu("sting", Some('@'), false)
 		);
 	}
 
 	#[test]
-	fn test_prev_monograph() {
+	fn test_prev_monograph<'a>() {
 		assert_eq!(
-			Choonpu::prev(Monograph("testing", None)),
+			Choonpu::prev(Syllabogram::<'a, SHORT_SIZE>("testing", None)),
 			Choonpu("esting", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Monograph("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<'a, SHORT_SIZE>("testing", Some('@'))),
 			Choonpu("esting", Some('@'), false)
 		);
 	}
 
 	#[test]
-	fn test_prev_nasal() {
+	fn test_prev_nasal<'a>() {
 		assert_eq!(
-			Choonpu::prev(Nasal("testing", None)),
+			Choonpu::prev(Syllabogram::<'a, TINY_SIZE>("testing", None)),
 			Choonpu("testing", None, false)
 		);
 		assert_eq!(
-			Choonpu::prev(Nasal("testing", Some('@'))),
+			Choonpu::prev(Syllabogram::<'a, TINY_SIZE>("testing", Some('@'))),
 			Choonpu("testing", Some('@'), false)
 		);
 	}

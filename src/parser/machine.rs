@@ -2,16 +2,18 @@ use std::collections::HashMap;
 
 use crate::config::KanaTable;
 
-use super::states::{Choonpu, Digraph, KanaToggle, LongDigraph, Monograph, Nasal, Sukuon};
+use super::states::{
+	Choonpu, KanaToggle, Sukuon, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE,
+};
 
 pub type NextState<'a> = Option<State<'a>>;
 
 #[derive(Debug, PartialEq)]
 pub enum State<'a> {
-	LongDigraph(LongDigraph<'a>),
-	Digraph(Digraph<'a>),
-	Monograph(Monograph<'a>),
-	Nasal(Nasal<'a>),
+	Long(Syllabogram<'a, LONG_SIZE>),
+	Medium(Syllabogram<'a, MEDIUM_SIZE>),
+	Short(Syllabogram<'a, SHORT_SIZE>),
+	Tiny(Syllabogram<'a, TINY_SIZE>),
 	Sukuon(Sukuon<'a>),
 	Choonpu(Choonpu<'a>),
 	KanaToggle(KanaToggle<'a>),
@@ -36,10 +38,10 @@ impl Machine {
 
 		loop {
 			let (s, next_state) = match state {
-				State::LongDigraph(s) => s.next(table),
-				State::Digraph(s) => s.next(table),
-				State::Monograph(s) => s.next(table),
-				State::Nasal(s) => s.next(table),
+				State::Long(s) => s.next(table),
+				State::Medium(s) => s.next(table),
+				State::Short(s) => s.next(table),
+				State::Tiny(s) => s.next(table),
 				State::Sukuon(s) => s.next(table),
 				State::Choonpu(s) => s.next(table),
 				State::KanaToggle(s) => {
@@ -81,27 +83,27 @@ where
 	fn prev(state: T) -> Self;
 }
 
-impl<'a> From<LongDigraph<'a>> for NextState<'a> {
-	fn from(state: LongDigraph<'a>) -> Self {
-		Some(State::LongDigraph(state))
+impl<'a> From<Syllabogram<'a, LONG_SIZE>> for NextState<'a> {
+	fn from(state: Syllabogram<'a, LONG_SIZE>) -> Self {
+		Some(State::Long(state))
 	}
 }
 
-impl<'a> From<Digraph<'a>> for NextState<'a> {
-	fn from(state: Digraph<'a>) -> Self {
-		Some(State::Digraph(state))
+impl<'a> From<Syllabogram<'a, MEDIUM_SIZE>> for NextState<'a> {
+	fn from(state: Syllabogram<'a, MEDIUM_SIZE>) -> Self {
+		Some(State::Medium(state))
 	}
 }
 
-impl<'a> From<Monograph<'a>> for NextState<'a> {
-	fn from(state: Monograph<'a>) -> Self {
-		Some(State::Monograph(state))
+impl<'a> From<Syllabogram<'a, SHORT_SIZE>> for NextState<'a> {
+	fn from(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
+		Some(State::Short(state))
 	}
 }
 
-impl<'a> From<Nasal<'a>> for NextState<'a> {
-	fn from(state: Nasal<'a>) -> Self {
-		Some(State::Nasal(state))
+impl<'a> From<Syllabogram<'a, TINY_SIZE>> for NextState<'a> {
+	fn from(state: Syllabogram<'a, TINY_SIZE>) -> Self {
+		Some(State::Tiny(state))
 	}
 }
 
