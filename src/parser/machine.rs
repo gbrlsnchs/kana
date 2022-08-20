@@ -71,8 +71,6 @@ impl Machine {
 }
 
 pub trait Next<'a> {
-	const SIZE: usize;
-
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>);
 }
 

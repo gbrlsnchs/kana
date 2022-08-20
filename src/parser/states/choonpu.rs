@@ -8,20 +8,20 @@ use crate::{
 
 use super::{KanaToggle, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE};
 
+pub const SIZE: usize = 2;
+
 #[derive(Debug, PartialEq)]
 pub struct Choonpu<'a>(pub &'a str, pub Option<char>, pub bool);
 
 impl<'a> Next<'a> for Choonpu<'a> {
-	const SIZE: usize = 2;
-
 	fn next(mut self, table: &KanaTable<'a>) -> (Option<&'a str>, machine::NextState<'a>) {
 		let word = self.0;
 
-		if util::utf8_word_count(word) < Self::SIZE {
+		if util::utf8_word_count(word) < SIZE {
 			return (None, Syllabogram::<'a, TINY_SIZE>::prev(self).into());
 		}
 
-		let query = util::utf8_word_slice_until(word, Self::SIZE);
+		let query = util::utf8_word_slice_until(word, SIZE);
 
 		if let Some(choonpu) = &table.graphemes.choonpu {
 			if choonpu.matches.contains(query) {
@@ -38,7 +38,7 @@ impl<'a> Next<'a> for Choonpu<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for Choonpu<'a> {
 	fn prev(state: Syllabogram<'a, LONG_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, LONG_SIZE>::SIZE - 1),
+			util::utf8_word_slice_from(state.0, LONG_SIZE - 1),
 			state.1,
 			false,
 		)
@@ -48,7 +48,7 @@ impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for Choonpu<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for Choonpu<'a> {
 	fn prev(state: Syllabogram<'a, MEDIUM_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, MEDIUM_SIZE>::SIZE - 1),
+			util::utf8_word_slice_from(state.0, MEDIUM_SIZE - 1),
 			state.1,
 			false,
 		)
@@ -58,7 +58,7 @@ impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for Choonpu<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for Choonpu<'a> {
 	fn prev(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, SHORT_SIZE>::SIZE - 1),
+			util::utf8_word_slice_from(state.0, SHORT_SIZE - 1),
 			state.1,
 			false,
 		)

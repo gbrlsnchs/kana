@@ -6,13 +6,11 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, KanaToggle, Sukuon, Syllabogram, SHORT_SIZE};
+use super::{Choonpu, KanaToggle, Sukuon, Syllabogram, CHOONPU_SIZE, SHORT_SIZE};
 
 pub const SIZE: usize = 1;
 
 impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
-	const SIZE: usize = SIZE;
-
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
@@ -20,7 +18,7 @@ impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
 			return (None, None);
 		}
 
-		let query = util::utf8_word_slice_until(word, Self::SIZE);
+		let query = util::utf8_word_slice_until(word, SIZE);
 
 		(
 			table
@@ -51,7 +49,7 @@ impl<'a> Previous<'a, Sukuon<'a>> for Syllabogram<'a, SIZE> {
 impl<'a> Previous<'a, Choonpu<'a>> for Syllabogram<'a, SIZE> {
 	fn prev(state: Choonpu<'a>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Choonpu::SIZE - 1),
+			util::utf8_word_slice_from(state.0, CHOONPU_SIZE - 1),
 			state.1,
 		)
 	}

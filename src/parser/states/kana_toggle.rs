@@ -6,14 +6,17 @@ use crate::{
 	},
 };
 
-use super::{Choonpu, Sukuon, Syllabogram, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, TINY_SIZE};
+use super::{
+	Choonpu, Sukuon, Syllabogram, CHOONPU_SIZE, LONG_SIZE, MEDIUM_SIZE, SHORT_SIZE, SUKUON_SIZE,
+	TINY_SIZE,
+};
+
+pub const SIZE: usize = 1;
 
 #[derive(Debug, PartialEq)]
 pub struct KanaToggle<'a>(pub &'a str, pub Option<char>, pub bool);
 
 impl<'a> Next<'a> for KanaToggle<'a> {
-	const SIZE: usize = 1;
-
 	fn next(self, _: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
@@ -27,18 +30,14 @@ impl<'a> Next<'a> for KanaToggle<'a> {
 
 impl<'a> Previous<'a, Self> for KanaToggle<'a> {
 	fn prev(state: KanaToggle<'a>) -> Self {
-		Self(
-			util::utf8_word_slice_from(state.0, Self::SIZE),
-			state.1,
-			true,
-		)
+		Self(util::utf8_word_slice_from(state.0, SIZE), state.1, true)
 	}
 }
 
 impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for KanaToggle<'a> {
 	fn prev(state: Syllabogram<'a, LONG_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, LONG_SIZE>::SIZE),
+			util::utf8_word_slice_from(state.0, LONG_SIZE),
 			state.1,
 			false,
 		)
@@ -48,7 +47,7 @@ impl<'a> Previous<'a, Syllabogram<'a, LONG_SIZE>> for KanaToggle<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for KanaToggle<'a> {
 	fn prev(state: Syllabogram<'a, MEDIUM_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, MEDIUM_SIZE>::SIZE),
+			util::utf8_word_slice_from(state.0, MEDIUM_SIZE),
 			state.1,
 			false,
 		)
@@ -58,7 +57,7 @@ impl<'a> Previous<'a, Syllabogram<'a, MEDIUM_SIZE>> for KanaToggle<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for KanaToggle<'a> {
 	fn prev(state: Syllabogram<'a, SHORT_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, SHORT_SIZE>::SIZE),
+			util::utf8_word_slice_from(state.0, SHORT_SIZE),
 			state.1,
 			false,
 		)
@@ -68,7 +67,7 @@ impl<'a> Previous<'a, Syllabogram<'a, SHORT_SIZE>> for KanaToggle<'a> {
 impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for KanaToggle<'a> {
 	fn prev(state: Syllabogram<'a, TINY_SIZE>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Syllabogram::<'a, TINY_SIZE>::SIZE),
+			util::utf8_word_slice_from(state.0, TINY_SIZE),
 			state.1,
 			false,
 		)
@@ -78,7 +77,7 @@ impl<'a> Previous<'a, Syllabogram<'a, TINY_SIZE>> for KanaToggle<'a> {
 impl<'a> Previous<'a, Sukuon<'a>> for KanaToggle<'a> {
 	fn prev(state: Sukuon<'a>) -> Self {
 		Self(
-			util::utf8_word_slice_from(state.0, Sukuon::SIZE - 1),
+			util::utf8_word_slice_from(state.0, SUKUON_SIZE - 1),
 			state.1,
 			false,
 		)
@@ -91,9 +90,9 @@ impl<'a> Previous<'a, Choonpu<'a>> for KanaToggle<'a> {
 			util::utf8_word_slice_from(
 				state.0,
 				if state.2 {
-					Choonpu::SIZE
+					CHOONPU_SIZE
 				} else {
-					Choonpu::SIZE - 1
+					CHOONPU_SIZE - 1
 				},
 			),
 			state.1,

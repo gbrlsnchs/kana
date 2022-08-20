@@ -8,20 +8,20 @@ use crate::{
 
 use super::{KanaToggle, Syllabogram, LONG_SIZE, MEDIUM_SIZE, TINY_SIZE};
 
+pub const SIZE: usize = 2;
+
 #[derive(Debug, PartialEq)]
 pub struct Sukuon<'a>(pub &'a str, pub Option<char>);
 
 impl<'a> Next<'a> for Sukuon<'a> {
-	const SIZE: usize = 2;
-
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
-		if util::utf8_word_count(word) < Self::SIZE {
+		if util::utf8_word_count(word) < SIZE {
 			return (None, Syllabogram::<'a, TINY_SIZE>::prev(self).into());
 		}
 
-		let query = util::utf8_word_slice_until(word, Self::SIZE);
+		let query = util::utf8_word_slice_until(word, SIZE);
 
 		match table.graphemes.sukuon.matches.contains(query) {
 			true => (

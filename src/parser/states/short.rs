@@ -11,16 +11,14 @@ use super::{Choonpu, KanaToggle, Syllabogram, MEDIUM_SIZE, TINY_SIZE};
 pub const SIZE: usize = 2;
 
 impl<'a> Next<'a> for Syllabogram<'a, SIZE> {
-	const SIZE: usize = SIZE;
-
 	fn next(self, table: &KanaTable<'a>) -> (Option<&'a str>, NextState<'a>) {
 		let word = self.0;
 
-		if util::utf8_word_count(word) < Self::SIZE {
+		if util::utf8_word_count(word) < SIZE {
 			return (None, Syllabogram::<'a, TINY_SIZE>::prev(self).into());
 		}
 
-		let query = util::utf8_word_slice_until(word, Self::SIZE);
+		let query = util::utf8_word_slice_until(word, SIZE);
 
 		match table.syllabograms.get(query) {
 			None => (None, Syllabogram::<'a, TINY_SIZE>::prev(self).into()),
