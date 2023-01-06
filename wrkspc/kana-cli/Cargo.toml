@@ -1,0 +1,12 @@
+[package]
+name = "kana_cli"
+authors = ["Gabriel Sanches <gabriel@gsr.dev>"]
+version = "1.0.0"
+edition = "2021"
+repository = "https://git.sr.ht/~gbrlsnchs/kana"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+kana = { path = "../kana-core" }

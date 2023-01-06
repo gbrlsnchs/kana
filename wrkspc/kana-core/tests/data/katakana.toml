@@ -1,4 +1,3 @@
-[syllabograms]
 # Vowels
 a = "ア"
 i = "イ"
@@ -83,9 +82,6 @@ ryo = "リョ"
 
 # W
 wa = "ワ"
-wi = "ヰ"
-we = "ヱ"
-wo = "ヲ"
 
 # G
 ga = "ガ"
@@ -138,79 +134,3 @@ pyu = "ピュ"
 pyo = "ピョ"
 
 n = "ン"
-
-# Chōonpu.
-
-
-# Extended Katakana.
-yi = "イィ"
-ye = "イェ"
-wi = "ウィ"
-we = "ウェ"
-wo = "ウォ"
-va = "ヴァ"
-vi = "ヴィ"
-vu = "ヴ"
-ve = "ヴェ"
-vo = "ヴォ"
-vya = "ヴャ"
-vyu = "ヴュ"
-vye = "ヴィェ"
-vyo = "ヴョ"
-kye = "キェ"
-gye = "ギェ"
-kwa = "クァ"
-kwi = "クィ"
-kwe = "クェ"
-kwo = "クォ"
-gwa = "グァ"
-gwi = "グィ"
-gwe = "グェ"
-gwo = "グォ"
-she = "シェ"
-je = "ジェ"
-si = "スィ"
-zi = "ズィ"
-tsa = "ツァ"
-tsi = "ツィ"
-tse = "ツェ"
-tso = "ツォ"
-tsyu = "ツュ"
-ti = "ティ"
-tu = "トゥ"
-tyu = "テュ"
-di = "ディ"
-du = "ドゥ"
-dyu = "デュ"
-nye = "ニェ"
-hye = "ヒェ"
-bye = "ビェ"
-pye = "ピェ"
-fa = "ファ"
-fi = "フィ"
-fe = "フェ"
-fo = "フォ"
-fya = "フャ"
-fyu = "フュ"
-fye = "フィェ"
-fyo = "フョ"
-hu = "ホゥ"
-mye = "ミェ"
-rye = "リェ"
-la = "ラ゜"
-li = "リ゜"
-lu = "ル゜"
-le = "レ゜"
-lo = "ロ゜"
-lya = "リ゜ャ"
-lyu = "リ゜ュ"
-lye = "リ゜ェ"
-lyo = "リ゜ョ"
-
-[graphemes.sukuon]
-matches = ["gg", "kk", "pp", "ss", "tt"]
-graph = "ッ"
-
-[graphemes.choonpu]
-matches = ["aa", "ii", "uu", "ee", "oo"]
-graph = "ー"

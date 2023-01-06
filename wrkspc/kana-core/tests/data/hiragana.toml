@@ -1,5 +1,3 @@
-[syllabograms]
-# Vowels
 a = "あ"
 i = "い"
 u = "う"
@@ -138,7 +136,3 @@ pyu = "ぴゅ"
 pyo = "ぴょ"
 
 n = "ん"
-
-[graphemes.sukuon]
-matches = ["gg", "kk", "pp", "ss", "tt"]
-graph = "っ"
