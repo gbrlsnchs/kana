@@ -92,7 +92,7 @@ impl<'a> State<'a> {
 							},
 							Self::Choonpu,
 						),
-						None => ("", input, Self::Medium),
+						None => ("", input, Self::Punctuation(size, &Self::Medium)),
 					}
 				}
 				Self::Medium => {
@@ -137,7 +137,7 @@ impl<'a> State<'a> {
 							},
 							Self::Choonpu,
 						),
-						None => ("", input, Self::Tiny),
+						None => ("", input, Self::Punctuation(size, &Self::Tiny)),
 					}
 				}
 				Self::Tiny => {
