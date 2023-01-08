@@ -1,4 +1,4 @@
-use crate::transliterate::{Config, ToggleMap};
+use crate::transliterate::{Config, SpecialChars};
 
 use super::{
 	glyphs::punctuation::{DOUBLE_QUOTES, SINGLE_QUOTES},
@@ -8,7 +8,7 @@ use super::{
 
 pub struct Input<'a> {
 	pub romaji: &'a str,
-	pub toggles: &'a ToggleMap,
+	pub special_chars: &'a SpecialChars,
 	pub kanas: Switch<Kana>,
 	pub punctuation: Option<Punctuation>,
 }
@@ -17,7 +17,7 @@ impl<'a> Input<'a> {
 	pub fn new(romaji: &'a str, cfg: &'a Config) -> Self {
 		Input {
 			romaji,
-			toggles: &cfg.toggles,
+			special_chars: &cfg.special_chars,
 			punctuation: if cfg.parse_punctuation {
 				Some(Punctuation {
 					single_quotes: Switch::new(SINGLE_QUOTES),

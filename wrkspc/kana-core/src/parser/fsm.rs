@@ -1,4 +1,4 @@
-use crate::transliterate::Toggle;
+use crate::transliterate::Feature;
 
 use super::{glyphs::punctuation::MARKS as PUNCTUATION_MARKS, input::Input, utf8};
 
@@ -30,7 +30,7 @@ impl<'a> State<'a> {
 				false => Some(("", input, Self::RawToggle)),
 			},
 			state => Some(match state {
-				Self::RawToggle => match input.toggles.get(&Toggle::RawText) {
+				Self::RawToggle => match input.special_chars.get(&Feature::RawText) {
 					Some(toggle) if romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -57,7 +57,7 @@ impl<'a> State<'a> {
 						),
 					}
 				}
-				Self::KanaToggle => match input.toggles.get(&Toggle::Kana) {
+				Self::KanaToggle => match input.special_chars.get(&Feature::Kana) {
 					Some(toggle) if input.romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -148,15 +148,25 @@ impl<'a> State<'a> {
 						None => ("", input, Self::Punctuation(size, &Self::Fallback)),
 					}
 				}
-				Self::Choonpu => {
-					let selection = utf8::slice_to(romaji, size);
-					input.romaji = utf8::slice_from(romaji, size - 1);
+				Self::Choonpu => match input.special_chars.get(&Feature::Reset) {
+					Some(reset) if utf8::slice_from(romaji, 1).starts_with(*reset) => (
+						"",
+						{
+							input.romaji = utf8::slice_from(romaji, size);
+							input
+						},
+						Self::Init,
+					),
+					_ => {
+						let selection = utf8::slice_to(romaji, size);
+						input.romaji = utf8::slice_from(romaji, size - 1);
 
-					match input.kanas.get_current().choonpu(selection) {
-						Some(output) => (output, input, Self::Choonpu),
-						None => ("", input, Self::Init),
+						match input.kanas.get_current().choonpu(selection) {
+							Some(output) => (output, input, Self::Choonpu),
+							None => ("", input, Self::Init),
+						}
 					}
-				}
+				},
 				Self::Punctuation(size, next) => {
 					let selection = utf8::slice_to(romaji, size);
 

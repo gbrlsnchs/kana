@@ -3,19 +3,20 @@ use std::collections::HashMap;
 use crate::parser::{fsm::State, input::Input};
 
 #[derive(Eq, Hash, PartialEq)]
-pub enum Toggle {
+pub enum Feature {
 	Kana,
 	RawText,
+	Reset,
 }
 
-pub type ToggleMap = HashMap<Toggle, char>;
+pub type SpecialChars = HashMap<Feature, char>;
 
 #[derive(Default)]
 pub struct Config {
 	pub start_with_katakana: bool,
 	pub extended_katakana: bool,
 	pub parse_punctuation: bool,
-	pub toggles: ToggleMap,
+	pub special_chars: SpecialChars,
 }
 
 /// Transforms romaji input into hiragana/katakana.

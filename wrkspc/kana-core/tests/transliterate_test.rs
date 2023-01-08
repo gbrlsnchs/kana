@@ -3,7 +3,7 @@ use std::{collections::HashMap, io::Result};
 use default_macro::default;
 use pretty_assertions::assert_eq;
 
-use kana::{self, Config, Toggle, ToggleMap};
+use kana::{self, Config, Feature, SpecialChars};
 
 #[test]
 fn test_hiragana() -> Result<()> {
@@ -101,10 +101,10 @@ fn test_inputs() {
 			"watashiha@gaburieru@desu",
 			"わたしはガブリエルです",
 			default!(Config {
-				toggles: {
-					let mut m = ToggleMap::new();
-					m.insert(Toggle::Kana, '@');
-					m
+				special_chars: {
+					let mut chars = SpecialChars::new();
+					chars.insert(Feature::Kana, '@');
+					chars
 				},
 			}),
 		),
@@ -114,10 +114,10 @@ fn test_inputs() {
 			"#hello#",
 			"hello",
 			default!(Config {
-				toggles: {
-					let mut m = ToggleMap::new();
-					m.insert(Toggle::RawText, '#');
-					m
+				special_chars: {
+					let mut chars = SpecialChars::new();
+					chars.insert(Feature::RawText, '#');
+					chars
 				},
 			}),
 		),
@@ -125,11 +125,11 @@ fn test_inputs() {
 			"nihon@nihon@#Japan#nihon#@nihon@#",
 			"にほんニホンJapanにほん@nihon@",
 			default!(Config {
-				toggles: {
-					let mut m = ToggleMap::new();
-					m.insert(Toggle::Kana, '@');
-					m.insert(Toggle::RawText, '#');
-					m
+				special_chars: {
+					let mut chars = SpecialChars::new();
+					chars.insert(Feature::Kana, '@');
+					chars.insert(Feature::RawText, '#');
+					chars
 				},
 			}),
 		),
@@ -137,10 +137,10 @@ fn test_inputs() {
 			"#rawtext",
 			"rawtext",
 			default!(Config {
-				toggles: {
-					let mut m = ToggleMap::new();
-					m.insert(Toggle::RawText, '#');
-					m
+				special_chars: {
+					let mut chars = SpecialChars::new();
+					chars.insert(Feature::RawText, '#');
+					chars
 				},
 			}),
 		),
@@ -280,6 +280,11 @@ fn test_pokemon() -> Result<()> {
 				default!(Config {
 					start_with_katakana: true,
 					extended_katakana: true,
+					special_chars: {
+						let mut chars = SpecialChars::new();
+						chars.insert(Feature::Reset, '^');
+						chars
+					},
 				}),
 			)
 		})
