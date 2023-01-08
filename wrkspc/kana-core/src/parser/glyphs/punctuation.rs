@@ -16,6 +16,7 @@ pub static MARKS: Map<&'static str, &'static str> = map! {
 	":" => "：",
 	"!" => "！",
 	"?" => "？",
+	"~" => "〜",
 };
 
 pub const SINGLE_QUOTES: [&'static str; 2] = ["「", "」"];
