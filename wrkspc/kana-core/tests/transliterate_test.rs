@@ -267,6 +267,29 @@ fn test_inputs() {
 	]);
 }
 
+#[test]
+fn test_pokemon() -> Result<()> {
+	let test_data = include_bytes!("data/pokemon.toml");
+	let test_data: HashMap<&str, &str> = toml::from_slice(test_data)?;
+	let test_data: Vec<(&str, &str, Config)> = test_data
+		.iter()
+		.map(|(k, v)| {
+			(
+				*k,
+				*v,
+				default!(Config {
+					start_with_katakana: true,
+					extended_katakana: true,
+				}),
+			)
+		})
+		.collect();
+
+	assert_test_cases(test_data);
+
+	Ok(())
+}
+
 fn assert_test_cases(cases: Vec<(&str, &str, Config)>) {
 	for (input, expected, cfg) in cases {
 		assert_eq!(
