@@ -4,7 +4,7 @@ use super::glyphs::{
 		SYLLABARY as HIRAGANA,
 	},
 	katakana::{
-		CHOONPU_GRAPH, CHOONPU_MATCHES, EXTENDED_SYLLABARY as EXTENDED_KATAKANA,
+		CHOUONPU_GRAPH, CHOUONPU_MATCHES, EXTENDED_SYLLABARY as EXTENDED_KATAKANA,
 		SMALL_VOWELS as KATAKANA_SMALL_VOWELS, SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH,
 		SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES, SYLLABARY as KATAKANA,
 	},
@@ -59,12 +59,12 @@ impl Kana {
 		}
 	}
 
-	pub fn choonpu(&self, key: &str) -> Option<&'static str> {
+	pub fn chouonpu(&self, key: &str) -> Option<&'static str> {
 		let key = &key.to_lowercase();
 
 		let (matches, graph) = match self {
 			Self::Hiragana => return None,
-			Self::Katakana { .. } => (&CHOONPU_MATCHES, &CHOONPU_GRAPH),
+			Self::Katakana { .. } => (&CHOUONPU_MATCHES, &CHOUONPU_GRAPH),
 		};
 
 		matches.get_key(key).map(|_| *graph)

@@ -15,7 +15,7 @@ pub enum State<'a> {
 	Sokuon,
 	VirtualSokuon,
 	SmallVowel,
-	Choonpu,
+	Chouonpu,
 	RawText(char),
 	Punctuation(usize, &'a Self),
 	Fallback,
@@ -92,7 +92,7 @@ impl<'a> State<'a> {
 								input.romaji = utf8::slice_from(romaji, size - 1);
 								input
 							},
-							Self::Choonpu,
+							Self::Chouonpu,
 						),
 						None => ("", input, Self::Punctuation(size, &Self::Medium)),
 					}
@@ -107,7 +107,7 @@ impl<'a> State<'a> {
 								input.romaji = utf8::slice_from(romaji, size - 1);
 								input
 							},
-							Self::Choonpu,
+							Self::Chouonpu,
 						),
 						None => ("", input, Self::Punctuation(size, &Self::Sokuon)),
 					}
@@ -143,7 +143,7 @@ impl<'a> State<'a> {
 										input.romaji = utf8::slice_from(romaji, size - 1);
 										input
 									},
-									Self::Choonpu,
+									Self::Chouonpu,
 								),
 								_ => ("", input, Self::Short),
 							}
@@ -161,7 +161,7 @@ impl<'a> State<'a> {
 								input.romaji = utf8::slice_from(romaji, size - 1);
 								input
 							},
-							Self::Choonpu,
+							Self::Chouonpu,
 						),
 						None => ("", input, Self::Punctuation(size, &Self::Tiny)),
 					}
@@ -170,11 +170,11 @@ impl<'a> State<'a> {
 					let selection = utf8::slice_to(romaji, size);
 
 					match input.kanas.get_current().get(selection) {
-						Some(output) => (output, input, Self::Choonpu),
+						Some(output) => (output, input, Self::Chouonpu),
 						None => ("", input, Self::Punctuation(size, &Self::VirtualSokuon)),
 					}
 				}
-				Self::Choonpu => match input.special_chars.get(&CharFeature::Reset) {
+				Self::Chouonpu => match input.special_chars.get(&CharFeature::Reset) {
 					Some(reset) if utf8::slice_from(romaji, 1).starts_with(*reset) => (
 						"",
 						{
@@ -187,8 +187,8 @@ impl<'a> State<'a> {
 						let selection = utf8::slice_to(romaji, size);
 						input.romaji = utf8::slice_from(romaji, size - 1);
 
-						match input.kanas.get_current().choonpu(selection) {
-							Some(output) => (output, input, Self::Choonpu),
+						match input.kanas.get_current().chouonpu(selection) {
+							Some(output) => (output, input, Self::Chouonpu),
 							None => ("", input, Self::Init),
 						}
 					}
@@ -271,7 +271,7 @@ impl<'a> State<'a> {
 			| Self::Tiny
 			| Self::VirtualSokuon
 			| Self::Fallback => 1,
-			Self::Short | Self::Sokuon | Self::SmallVowel | Self::Choonpu => 2,
+			Self::Short | Self::Sokuon | Self::SmallVowel | Self::Chouonpu => 2,
 			Self::Medium => 3,
 			Self::Long => 4,
 			Self::Punctuation(size, _) => *size,
