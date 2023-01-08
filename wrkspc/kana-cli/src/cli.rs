@@ -6,6 +6,7 @@ use clap::{ArgAction, Parser};
 /// See kana(1) for more details about usage.
 #[derive(Default, Parser)]
 #[command(
+	name = "kana",
 	about,
 	long_about,
 	version,
