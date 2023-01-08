@@ -139,10 +139,10 @@ impl<'a> State<'a> {
 								Some(vowel) => (
 									vowel,
 									{
-										input.romaji = utf8::slice_from(romaji, size);
+										input.romaji = utf8::slice_from(romaji, size - 1);
 										input
 									},
-									Self::Init,
+									Self::Choonpu,
 								),
 								_ => ("", input, Self::Short),
 							}

@@ -151,3 +151,6 @@ Hakuryuu    = "ハクリュー" # Dragonair
 Kairyuu     = "カイリュー" # Dragonite
 "Myu^utsuu" = "ミュウツー" # Mewtwo
 "Myu^u"     = "ミュウ"     # Mew
+
+# Other special cases
+Me_eekuru = "メェークル"
