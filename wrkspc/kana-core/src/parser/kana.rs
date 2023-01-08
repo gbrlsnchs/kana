@@ -24,6 +24,8 @@ impl Default for Kana {
 
 impl Kana {
 	pub fn get(&self, key: &str) -> Option<&'static str> {
+		let key = &key.to_lowercase();
+
 		match self {
 			Self::Hiragana => (&HIRAGANA).get(key),
 			Self::Katakana { extended } => if *extended {
@@ -37,6 +39,8 @@ impl Kana {
 	}
 
 	pub fn sokuon(&self, key: &str) -> Option<&'static str> {
+		let key = &key.to_lowercase();
+
 		let (matches, graph) = match self {
 			Self::Hiragana => (&HIRAGANA_SOKUON_MATCHES, &HIRAGANA_SOKUON_GRAPH),
 			Self::Katakana { .. } => (&KATAKANA_SOKUON_MATCHES, &KATAKANA_SOKUON_GRAPH),
@@ -46,6 +50,8 @@ impl Kana {
 	}
 
 	pub fn choonpu(&self, key: &str) -> Option<&'static str> {
+		let key = &key.to_lowercase();
+
 		let (matches, graph) = match self {
 			Self::Hiragana => return None,
 			Self::Katakana { .. } => (&CHOONPU_MATCHES, &CHOONPU_GRAPH),

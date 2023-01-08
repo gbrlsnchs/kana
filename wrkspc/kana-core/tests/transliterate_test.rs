@@ -108,7 +108,7 @@ fn test_inputs() {
 				},
 			}),
 		),
-		("HELLO", "HELLO", default!(Config {})),
+		("HELLO", "へLLお", default!(Config {})),
 		("hello", "へllお", default!(Config {})),
 		(
 			"#hello#",
@@ -183,7 +183,7 @@ fn test_inputs() {
 		("日本", "日本", default!(Config {})),
 		("nihon", "にほん", default!(Config {})),
 		("12jinitabemasu!", "12じにたべます!", default!(Config {})),
-		("123 GO!", "123 GO!", default!(Config {})),
+		("123 GO!", "123 ご!", default!(Config {})),
 		(
 			"oomen",
 			"オーメン",
@@ -259,7 +259,7 @@ fn test_inputs() {
 		),
 		(
 			"123 GO!",
-			"123 GO!",
+			"123 ゴ!",
 			default!(Config {
 				start_with_katakana: true,
 			}),
