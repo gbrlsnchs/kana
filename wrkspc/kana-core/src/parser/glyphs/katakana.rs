@@ -212,9 +212,9 @@ pub static EXTENDED_SYLLABARY: Map<&'static str, &'static str> = map! {
 pub static SMALL_VOWELS: Map<&'static str, &'static str> = map! {
 	"a" => "ァ",
 	"i" => "ィ",
-	"u" => "ォ",
+	"u" => "ゥ",
 	"e" => "ェ",
-	"o" => "ゥ",
+	"o" => "ォ",
 };
 
 pub const SOKUON_GRAPH: &'static str = "ッ";
