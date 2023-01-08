@@ -40,7 +40,7 @@ fn main() -> IoResult<()> {
 			}
 		}
 	} else {
-		let romaji: String = app.input.unwrap_or_default().join("");
+		let romaji: String = app.input.unwrap_or_default().join(" ");
 		let output = kana::transliterate(&romaji, &cfg);
 
 		if !output.is_empty() {
