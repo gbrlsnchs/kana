@@ -282,9 +282,9 @@ fn test_pokemon() -> Result<()> {
 					extended_katakana: true,
 					special_chars: {
 						let mut chars = SpecialChars::new();
-						chars.insert(CharFeature::Reset, '^');
+						chars.insert(CharFeature::ResetProlongation, '^');
 						chars.insert(CharFeature::SmallVowel, '_');
-						chars.insert(CharFeature::VirtualSokuon, '%');
+						chars.insert(CharFeature::VirtualStop, '%');
 						chars
 					},
 				}),

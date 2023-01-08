@@ -6,9 +6,9 @@ use crate::parser::{fsm::State, input::Input};
 pub enum CharFeature {
 	KanaToggle,
 	RawTextToggle,
-	Reset,
+	ResetProlongation,
 	SmallVowel,
-	VirtualSokuon,
+	VirtualStop,
 }
 
 pub type SpecialChars = HashMap<CharFeature, char>;

@@ -174,7 +174,7 @@ impl<'a> State<'a> {
 						None => ("", input, Self::Punctuation(size, &Self::VirtualSokuon)),
 					}
 				}
-				Self::Chouonpu => match input.special_chars.get(&CharFeature::Reset) {
+				Self::Chouonpu => match input.special_chars.get(&CharFeature::ResetProlongation) {
 					Some(reset) if utf8::slice_from(romaji, 1).starts_with(*reset) => (
 						"",
 						{
@@ -239,7 +239,7 @@ impl<'a> State<'a> {
 						None => ("", input, *next),
 					}
 				}
-				Self::VirtualSokuon => match input.special_chars.get(&CharFeature::VirtualSokuon) {
+				Self::VirtualSokuon => match input.special_chars.get(&CharFeature::VirtualStop) {
 					Some(c) if romaji.starts_with(*c) => (
 						input.kanas.get_current().sokuon_literal(),
 						{
