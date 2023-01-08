@@ -209,6 +209,14 @@ pub static EXTENDED_SYLLABARY: Map<&'static str, &'static str> = map! {
 	"lyo" => "リ゜ョ",
 };
 
+pub static SMALL_VOWELS: Map<&'static str, &'static str> = map! {
+	"a" => "ァ",
+	"i" => "ィ",
+	"u" => "ォ",
+	"e" => "ェ",
+	"o" => "ゥ",
+};
+
 pub const SOKUON_GRAPH: &'static str = "ッ";
 pub static SOKUON_MATCHES: Set<&'static str> = set! {
 	"kk",

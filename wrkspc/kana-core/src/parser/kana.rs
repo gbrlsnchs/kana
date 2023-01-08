@@ -5,8 +5,8 @@ use super::glyphs::{
 	},
 	katakana::{
 		CHOONPU_GRAPH, CHOONPU_MATCHES, EXTENDED_SYLLABARY as EXTENDED_KATAKANA,
-		SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH, SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES,
-		SYLLABARY as KATAKANA,
+		SMALL_VOWELS as KATAKANA_SMALL_VOWELS, SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH,
+		SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES, SYLLABARY as KATAKANA,
 	},
 };
 
@@ -58,5 +58,14 @@ impl Kana {
 		};
 
 		matches.get_key(key).map(|_| *graph)
+	}
+
+	pub fn small_vowel(&self, key: &str) -> Option<&'static str> {
+		let key = &key.to_lowercase();
+
+		match self {
+			Self::Katakana { .. } => (&KATAKANA_SMALL_VOWELS).get(key).map(|vowel| *vowel),
+			_ => None,
+		}
 	}
 }

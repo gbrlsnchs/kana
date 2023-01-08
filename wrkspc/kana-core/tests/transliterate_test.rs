@@ -103,7 +103,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::Kana, '@');
+					chars.insert(Feature::KanaToggle, '@');
 					chars
 				},
 			}),
@@ -116,7 +116,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::RawText, '#');
+					chars.insert(Feature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -127,8 +127,8 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::Kana, '@');
-					chars.insert(Feature::RawText, '#');
+					chars.insert(Feature::KanaToggle, '@');
+					chars.insert(Feature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -139,7 +139,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::RawText, '#');
+					chars.insert(Feature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -282,7 +282,8 @@ fn test_pokemon() -> Result<()> {
 					extended_katakana: true,
 					special_chars: {
 						let mut chars = SpecialChars::new();
-						chars.insert(Feature::Reset, '^');
+						chars.insert(Feature::ResetTrigger, '^');
+						chars.insert(Feature::SmallVowelTrigger, '_');
 						chars
 					},
 				}),

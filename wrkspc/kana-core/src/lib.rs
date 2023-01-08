@@ -48,13 +48,13 @@
 //! between kanas everytime the toggle is matched:
 //!
 //! ```
-//! use kana::{Config, Toggle, ToggleMap};
+//! use kana::{Config, Feature, SpecialChars};
 //!
 //! let cfg = Config{
-//!     toggles: {
-//!         let mut m = ToggleMap::new();
-//!         m.insert(Toggle::Kana, '@');
-//!         m
+//!     special_chars: {
+//!         let mut s = SpecialChars::new();
+//!         s.insert(Feature::KanaToggle, '@');
+//!         s
 //!     },
 //!     ..Config::default()
 //! };
@@ -67,13 +67,13 @@
 //! default parsing and raw text:
 //!
 //! ```
-//! use kana::{Config, Toggle, ToggleMap};
+//! use kana::{Config, Feature, SpecialChars};
 //!
 //! let cfg = Config{
-//!     toggles: {
-//!         let mut m = ToggleMap::new();
-//!         m.insert(Toggle::RawText, '#');
-//!         m
+//!     special_chars: {
+//!         let mut s = SpecialChars::new();
+//!         s.insert(Feature::RawTextToggle, '#');
+//!         s
 //!     },
 //!     ..Config::default()
 //! };

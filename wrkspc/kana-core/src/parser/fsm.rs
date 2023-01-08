@@ -13,6 +13,7 @@ pub enum State<'a> {
 	Short,
 	Tiny,
 	Sokuon,
+	SmallVowel,
 	Choonpu,
 	RawText(char),
 	Punctuation(usize, &'a Self),
@@ -30,7 +31,7 @@ impl<'a> State<'a> {
 				false => Some(("", input, Self::RawToggle)),
 			},
 			state => Some(match state {
-				Self::RawToggle => match input.special_chars.get(&Feature::RawText) {
+				Self::RawToggle => match input.special_chars.get(&Feature::RawTextToggle) {
 					Some(toggle) if romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -57,7 +58,7 @@ impl<'a> State<'a> {
 						),
 					}
 				}
-				Self::KanaToggle => match input.special_chars.get(&Feature::Kana) {
+				Self::KanaToggle => match input.special_chars.get(&Feature::KanaToggle) {
 					Some(toggle) if input.romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -122,7 +123,31 @@ impl<'a> State<'a> {
 							},
 							Self::Init,
 						),
-						None => ("", input, Self::Short),
+						None => ("", input, Self::SmallVowel),
+					}
+				}
+				Self::SmallVowel => {
+					let selection = utf8::slice_to(romaji, size);
+
+					match input.special_chars.get(&Feature::SmallVowelTrigger) {
+						Some(trigger) if selection.starts_with(*trigger) => {
+							match input
+								.kanas
+								.get_current()
+								.small_vowel(&utf8::slice_from(selection, 1))
+							{
+								Some(vowel) => (
+									vowel,
+									{
+										input.romaji = utf8::slice_from(romaji, size);
+										input
+									},
+									Self::Init,
+								),
+								_ => ("", input, Self::Short),
+							}
+						}
+						_ => ("", input, Self::Short),
 					}
 				}
 				Self::Short => {
@@ -148,7 +173,7 @@ impl<'a> State<'a> {
 						None => ("", input, Self::Punctuation(size, &Self::Fallback)),
 					}
 				}
-				Self::Choonpu => match input.special_chars.get(&Feature::Reset) {
+				Self::Choonpu => match input.special_chars.get(&Feature::ResetTrigger) {
 					Some(reset) if utf8::slice_from(romaji, 1).starts_with(*reset) => (
 						"",
 						{
@@ -233,7 +258,7 @@ impl<'a> State<'a> {
 			| Self::RawText(_)
 			| Self::Tiny
 			| Self::Fallback => 1,
-			Self::Short | Self::Sokuon | Self::Choonpu => 2,
+			Self::Short | Self::Sokuon | Self::SmallVowel | Self::Choonpu => 2,
 			Self::Medium => 3,
 			Self::Long => 4,
 			Self::Punctuation(size, _) => *size,

@@ -4,9 +4,10 @@ use crate::parser::{fsm::State, input::Input};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum Feature {
-	Kana,
-	RawText,
-	Reset,
+	KanaToggle,
+	RawTextToggle,
+	ResetTrigger,
+	SmallVowelTrigger,
 }
 
 pub type SpecialChars = HashMap<Feature, char>;
