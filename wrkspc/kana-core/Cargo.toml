@@ -2,6 +2,7 @@
 name = "kana"
 version = "1.0.0"
 authors = ["Gabriel Sanches <gabriel@gsr.dev>"]
+repository = "https://git.sr.ht/~gbrlsnchs/kana"
 edition = "2021"
 
 [dependencies]
