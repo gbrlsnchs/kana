@@ -1,4 +1,4 @@
-use crate::transliterate::Feature;
+use crate::transliterate::CharFeature;
 
 use super::{glyphs::punctuation::MARKS as PUNCTUATION_MARKS, input::Input, utf8};
 
@@ -13,6 +13,7 @@ pub enum State<'a> {
 	Short,
 	Tiny,
 	Sokuon,
+	VirtualSokuon,
 	SmallVowel,
 	Choonpu,
 	RawText(char),
@@ -31,7 +32,7 @@ impl<'a> State<'a> {
 				false => Some(("", input, Self::RawToggle)),
 			},
 			state => Some(match state {
-				Self::RawToggle => match input.special_chars.get(&Feature::RawTextToggle) {
+				Self::RawToggle => match input.special_chars.get(&CharFeature::RawTextToggle) {
 					Some(toggle) if romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -58,7 +59,7 @@ impl<'a> State<'a> {
 						),
 					}
 				}
-				Self::KanaToggle => match input.special_chars.get(&Feature::KanaToggle) {
+				Self::KanaToggle => match input.special_chars.get(&CharFeature::KanaToggle) {
 					Some(toggle) if input.romaji.starts_with(*toggle) => (
 						"",
 						{
@@ -129,7 +130,7 @@ impl<'a> State<'a> {
 				Self::SmallVowel => {
 					let selection = utf8::slice_to(romaji, size);
 
-					match input.special_chars.get(&Feature::SmallVowelTrigger) {
+					match input.special_chars.get(&CharFeature::SmallVowel) {
 						Some(trigger) if selection.starts_with(*trigger) => {
 							match input
 								.kanas
@@ -170,10 +171,10 @@ impl<'a> State<'a> {
 
 					match input.kanas.get_current().get(selection) {
 						Some(output) => (output, input, Self::Choonpu),
-						None => ("", input, Self::Punctuation(size, &Self::Fallback)),
+						None => ("", input, Self::Punctuation(size, &Self::VirtualSokuon)),
 					}
 				}
-				Self::Choonpu => match input.special_chars.get(&Feature::ResetTrigger) {
+				Self::Choonpu => match input.special_chars.get(&CharFeature::Reset) {
 					Some(reset) if utf8::slice_from(romaji, 1).starts_with(*reset) => (
 						"",
 						{
@@ -238,6 +239,17 @@ impl<'a> State<'a> {
 						None => ("", input, *next),
 					}
 				}
+				Self::VirtualSokuon => match input.special_chars.get(&CharFeature::VirtualSokuon) {
+					Some(c) if romaji.starts_with(*c) => (
+						input.kanas.get_current().sokuon_literal(),
+						{
+							input.romaji = utf8::slice_from(romaji, size);
+							input
+						},
+						Self::Init,
+					),
+					_ => ("", input, Self::Fallback),
+				},
 				Self::Fallback => {
 					let output = utf8::slice_to(romaji, size);
 					input.romaji = utf8::slice_from(romaji, size);
@@ -257,6 +269,7 @@ impl<'a> State<'a> {
 			| Self::KanaToggle
 			| Self::RawText(_)
 			| Self::Tiny
+			| Self::VirtualSokuon
 			| Self::Fallback => 1,
 			Self::Short | Self::Sokuon | Self::SmallVowel | Self::Choonpu => 2,
 			Self::Medium => 3,

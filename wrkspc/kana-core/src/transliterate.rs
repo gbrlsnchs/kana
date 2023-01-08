@@ -3,14 +3,15 @@ use std::collections::HashMap;
 use crate::parser::{fsm::State, input::Input};
 
 #[derive(Eq, Hash, PartialEq)]
-pub enum Feature {
+pub enum CharFeature {
 	KanaToggle,
 	RawTextToggle,
-	ResetTrigger,
-	SmallVowelTrigger,
+	Reset,
+	SmallVowel,
+	VirtualSokuon,
 }
 
-pub type SpecialChars = HashMap<Feature, char>;
+pub type SpecialChars = HashMap<CharFeature, char>;
 
 #[derive(Default)]
 pub struct Config {

@@ -153,4 +153,6 @@ Kairyuu     = "カイリュー" # Dragonite
 "Myu^u"     = "ミュウ"     # Mew
 
 # Other special cases
-Me_eekuru = "メェークル"
+
+Me_eekuru = "メェークル" # Skiddo (Gen VI)
+"U%u"     = "ウッウ"     # Cramorant (Gen VIII)

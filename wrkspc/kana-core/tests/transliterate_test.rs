@@ -3,7 +3,7 @@ use std::{collections::HashMap, io::Result};
 use default_macro::default;
 use pretty_assertions::assert_eq;
 
-use kana::{self, Config, Feature, SpecialChars};
+use kana::{self, CharFeature, Config, SpecialChars};
 
 #[test]
 fn test_hiragana() -> Result<()> {
@@ -103,7 +103,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::KanaToggle, '@');
+					chars.insert(CharFeature::KanaToggle, '@');
 					chars
 				},
 			}),
@@ -116,7 +116,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::RawTextToggle, '#');
+					chars.insert(CharFeature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -127,8 +127,8 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::KanaToggle, '@');
-					chars.insert(Feature::RawTextToggle, '#');
+					chars.insert(CharFeature::KanaToggle, '@');
+					chars.insert(CharFeature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -139,7 +139,7 @@ fn test_inputs() {
 			default!(Config {
 				special_chars: {
 					let mut chars = SpecialChars::new();
-					chars.insert(Feature::RawTextToggle, '#');
+					chars.insert(CharFeature::RawTextToggle, '#');
 					chars
 				},
 			}),
@@ -282,8 +282,9 @@ fn test_pokemon() -> Result<()> {
 					extended_katakana: true,
 					special_chars: {
 						let mut chars = SpecialChars::new();
-						chars.insert(Feature::ResetTrigger, '^');
-						chars.insert(Feature::SmallVowelTrigger, '_');
+						chars.insert(CharFeature::Reset, '^');
+						chars.insert(CharFeature::SmallVowel, '_');
+						chars.insert(CharFeature::VirtualSokuon, '%');
 						chars
 					},
 				}),

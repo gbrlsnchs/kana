@@ -41,12 +41,22 @@ impl Kana {
 	pub fn sokuon(&self, key: &str) -> Option<&'static str> {
 		let key = &key.to_lowercase();
 
-		let (matches, graph) = match self {
-			Self::Hiragana => (&HIRAGANA_SOKUON_MATCHES, &HIRAGANA_SOKUON_GRAPH),
-			Self::Katakana { .. } => (&KATAKANA_SOKUON_MATCHES, &KATAKANA_SOKUON_GRAPH),
+		let matches = match self {
+			Self::Hiragana => &HIRAGANA_SOKUON_MATCHES,
+			Self::Katakana { .. } => &KATAKANA_SOKUON_MATCHES,
 		};
 
-		matches.get_key(key).map(|_| *graph)
+		match matches.contains(key) {
+			true => Some(self.sokuon_literal()),
+			false => None,
+		}
+	}
+
+	pub fn sokuon_literal(&self) -> &'static str {
+		match self {
+			Self::Hiragana => &HIRAGANA_SOKUON_GRAPH,
+			Self::Katakana { .. } => &KATAKANA_SOKUON_GRAPH,
+		}
 	}
 
 	pub fn choonpu(&self, key: &str) -> Option<&'static str> {
