@@ -1,51 +1,107 @@
-# Kana
-## About
-Kana is a small CLI program for transliterating romaji text to either hiragana (ひらがな) or
-katakana (カタカナ).
+## kana
 
-### How it works
-Internally, it uses a finite-state machine in order to parse everything correctly and in the right
-order.
+kana is a CLI tool and also a library for transliterating romaji text to either hiragana
+(ひらがな) or katakana (カタカナ).
 
-## Examples
-### Simple usage
-```shell
+### Usage
+
+The following snippets only shortly demonstrate the features. For a more thorough documentation,
+see `kana(1)`.
+
+#### Default features
+
+```console
 $ kana ohayougozaimasu
 おはようございます
-$ kana --katakana suupaa mario
-スーパー マリオ
 ```
 
-### Toggling between kanas
-It's possible to toggle between kanas if a toggle char is informed to `--toggle-char`. Whenever the
-parser hits the informed char, it will toggle between kanas, using the other variant until it hits
-that char again, then toggling back to the previous variant, and so on:
-```shell
-$ kana --toggle-char=@ watashiha@gaburieru@desu
+#### Reading from stdin
+
+```console
+$ echo "itadakimasu" | kana --interactive
+いただきます
+```
+
+#### Katakana
+
+```console
+$ kana --katakana suupa mario
+スーパ マリオ
+```
+
+#### Extended katakana
+
+
+```console
+$ kana --katakana --extended-katakana supagetti
+スパゲッティ
+```
+
+#### Punctuation marks
+
+```console
+$ kana --with-punctuation "([{<soudesune." "'sugoi!'" '"kawaii~">}])' "?!,"
+（［｛【そうですね。 「すごい！」 『かわいい〜』】｝］）？！、
+```
+
+#### Forcing prolongation
+
+```console
+$ kana --force-prolongation raamen
+らーめん
+```
+
+#### Toggling between kanas
+
+```console
+$ kana --kana-toggle="@" watashiha@gaburieru@desu
 わたしはガブリエルです
 ```
 
-### Transliterating a multi-line file
-Kana can't read files, so it is necessary to pipe files through something like `xargs`:
-```shell
-$ cat file.txt
-hajimemashite
-@gaburieru@tomoshimasu
-douzoyoroshikuonegaishimasu
+#### Toggling between raw text and kanas
 
-$ cat file.txt | xargs --max-lines=1 kana --toggle-char=@
-はじめまして
-ガブリエルともします
-どうぞよろしくおねがいします
+```console
+$ kana --raw-text-toggle="#" watashiha#J-rock#gasukidesu
+わたしはJ-rockがすきです
 ```
 
-## Building from source
-Since this project is written in Rust, you need to build it with `cargo`:
-```shell
-$ cargo build --release --frozen
+#### Resetting prolongation (katakana only)
+
+```console
+$ kana --katakana --prolongation-reset-char="^" Pikachu^u
+ピカチュウ
 ```
 
-Shell completions are generated during build and stored in `target/completions` after it's finished.
+#### Using small vowels (katakana only)
 
-## Note
-Some few monographs are not implemented due to being redundant or generally unused.
+```console
+$ kana --katakana --small-vowel-char="_" Serebi_i
+セレビィ
+```
+
+#### Adding virtual stops
+
+```console
+$ kana --katakana --virtual-stop-char="%" U%u
+ウッウ
+```
+
+### Contributing
+
+[Use the mailing list](mailto:~gbrlsnchs/kana-dev@lists.sr.ht) to
+- Report issues
+- Request new features
+- Send patches
+- Discuss development in general
+
+If applicable, a new ticket will be submitted by maintainers to [the issue
+tracker](https://todo.sr.ht/~gbrlsnchs/kana) in order to track confirmed bugs or new features.
+
+### Building and distributing the project
+
+This project is built entirely in Rust. Build it as you wish for local usage, and package it
+to your distro of preference in accordance with its policy on how to package Rust projects.
+
+> **_NOTE:_** `cargo build` generates shell completions for Bash, ZSH and Fish, which
+> are available at `target/completions`, and manpages at `target/doc` (only when
+> [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc) is available).
