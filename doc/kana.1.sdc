@@ -37,6 +37,9 @@ It's also possible to take input from _stdin_:
 
 	If this option is not set, punctuation is printed as is.
 
+*-P*, *--force-prolongation*
+	Force hiragana to use a prolongation character.
+
 *-t*, *--kana-toggle*=_CHAR_
 	The character to be used in order to toggle kanas.
 
@@ -76,7 +79,7 @@ It's also possible to take input from _stdin_:
 *-v*, *--version*
 	Show version.
 
-# EXTRA FEATURES
+# FEATURES
 
 ## EXTENDED KATAKANA
 
@@ -94,11 +97,33 @@ katakana syllabograms.
 By default, *kana* doesn't transliterate punctuation marks. However, when using --with-punctuation,
 it starts to take punctuation marks into account:
 
-	*kana --with-punctuation 'onamaeha?' 'chottomatte!' 'kawaii~' 'sugoidesune.'*
+	*kana --with-punctuation 'onamaeha?' 'chottomatte!' 'kawaii~,sugoidesune.'*
 
 The command above outputs the following:
 
-	おなまえは？ ちょっとまって！ かわいい〜 すごいですね。
+	おなまえは？ ちょっとまって！ かわいい〜、すごいですね。
+
+Note that quoting also works accordingly:
+
+	*kana --with-punctuation '"kirei"' "'benri'"*
+
+Opening and closing quotes are automatically handled:
+
+	『きれい』 「べんり」
+
+## FORCE PROLONGATION
+
+By default, hiragana output doesn't use a prolongation character. Instead,
+it simply repeats the prolongated vowel.
+
+However, some words can benefit from showing the prolongation character even
+for hiragana. It's possible to do so:
+
+	*kana --force-prolongation raamen*
+
+By forcing prolongation, the output looks like:
+
+	らーめん
 
 ## KANA TOGGLING
 
