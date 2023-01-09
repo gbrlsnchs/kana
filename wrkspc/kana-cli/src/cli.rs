@@ -31,6 +31,10 @@ pub struct Kana {
 	#[arg(long, short = 'p')]
 	pub with_punctuation: bool,
 
+	/// Force hiragana to use a prolongation character.
+	#[arg(long, short = 'P')]
+	pub force_prolongation: bool,
+
 	/// Use a character to toggle between kanas.
 	#[arg(long, short = 't')]
 	pub kana_toggle: Option<char>,

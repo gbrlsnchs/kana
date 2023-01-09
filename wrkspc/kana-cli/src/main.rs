@@ -13,6 +13,7 @@ fn main() -> IoResult<()> {
 		start_with_katakana: app.katakana,
 		extended_katakana: app.extended_katakana,
 		parse_punctuation: app.with_punctuation,
+		force_prolongation: app.force_prolongation,
 		special_chars: {
 			let mut s = SpecialChars::new();
 			app.kana_toggle
