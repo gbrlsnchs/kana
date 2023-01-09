@@ -264,6 +264,13 @@ fn test_inputs() {
 				start_with_katakana: true,
 			}),
 		),
+		(
+			"raamen",
+			"らーめん",
+			default!(Config {
+				force_prolongation: true,
+			}),
+		),
 	]);
 }
 

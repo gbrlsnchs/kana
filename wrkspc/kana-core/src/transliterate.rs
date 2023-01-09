@@ -30,6 +30,8 @@ pub struct Config {
 	pub extended_katakana: bool,
 	/// Consider punctuation marks when parsing the romaji text.
 	pub parse_punctuation: bool,
+	/// Show prolongation character for hiragana as well.
+	pub force_prolongation: bool,
 	/// A map of special chars that can be used during the transliteration.
 	pub special_chars: SpecialChars,
 }

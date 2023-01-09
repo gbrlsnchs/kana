@@ -1,25 +1,19 @@
 use super::glyphs::{
+	chouonpu::{CHOUONPU_GRAPH, CHOUONPU_MATCHES},
 	hiragana::{
 		SOKUON_GRAPH as HIRAGANA_SOKUON_GRAPH, SOKUON_MATCHES as HIRAGANA_SOKUON_MATCHES,
 		SYLLABARY as HIRAGANA,
 	},
 	katakana::{
-		CHOUONPU_GRAPH, CHOUONPU_MATCHES, EXTENDED_SYLLABARY as EXTENDED_KATAKANA,
-		SMALL_VOWELS as KATAKANA_SMALL_VOWELS, SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH,
-		SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES, SYLLABARY as KATAKANA,
+		EXTENDED_SYLLABARY as EXTENDED_KATAKANA, SMALL_VOWELS as KATAKANA_SMALL_VOWELS,
+		SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH, SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES,
+		SYLLABARY as KATAKANA,
 	},
 };
 
 pub enum Kana {
-	Hiragana,
+	Hiragana { show_prolongation: bool },
 	Katakana { extended: bool },
-}
-
-impl Default for Kana {
-	/// Hiragana is the default.
-	fn default() -> Self {
-		Self::Hiragana
-	}
 }
 
 impl Kana {
@@ -27,7 +21,7 @@ impl Kana {
 		let key = &key.to_lowercase();
 
 		match self {
-			Self::Hiragana => (&HIRAGANA).get(key),
+			Self::Hiragana { .. } => (&HIRAGANA).get(key),
 			Self::Katakana { extended } => if *extended {
 				(&EXTENDED_KATAKANA).get(key)
 			} else {
@@ -42,7 +36,7 @@ impl Kana {
 		let key = &key.to_lowercase();
 
 		let matches = match self {
-			Self::Hiragana => &HIRAGANA_SOKUON_MATCHES,
+			Self::Hiragana { .. } => &HIRAGANA_SOKUON_MATCHES,
 			Self::Katakana { .. } => &KATAKANA_SOKUON_MATCHES,
 		};
 
@@ -54,7 +48,7 @@ impl Kana {
 
 	pub fn sokuon_literal(&self) -> &'static str {
 		match self {
-			Self::Hiragana => &HIRAGANA_SOKUON_GRAPH,
+			Self::Hiragana { .. } => &HIRAGANA_SOKUON_GRAPH,
 			Self::Katakana { .. } => &KATAKANA_SOKUON_GRAPH,
 		}
 	}
@@ -63,8 +57,11 @@ impl Kana {
 		let key = &key.to_lowercase();
 
 		let (matches, graph) = match self {
-			Self::Hiragana => return None,
+			Self::Hiragana {
+				show_prolongation: true,
+			} => (&CHOUONPU_MATCHES, &CHOUONPU_GRAPH),
 			Self::Katakana { .. } => (&CHOUONPU_MATCHES, &CHOUONPU_GRAPH),
+			_ => return None,
 		};
 
 		matches.get_key(key).map(|_| *graph)

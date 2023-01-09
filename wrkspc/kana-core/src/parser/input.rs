@@ -28,7 +28,9 @@ impl<'a> Input<'a> {
 			},
 			kanas: {
 				let mut sw = Switch::new([
-					Kana::Hiragana,
+					Kana::Hiragana {
+						show_prolongation: cfg.force_prolongation,
+					},
 					Kana::Katakana {
 						extended: cfg.extended_katakana,
 					},
