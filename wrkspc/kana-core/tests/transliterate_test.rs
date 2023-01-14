@@ -271,6 +271,7 @@ fn test_inputs() {
 				force_prolongation: true,
 			}),
 		),
+		("bacchi za rokku", "ばっち ざ ろっく", default!(Config {})),
 	]);
 }
 

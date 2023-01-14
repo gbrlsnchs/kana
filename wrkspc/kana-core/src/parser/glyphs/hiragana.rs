@@ -1,4 +1,4 @@
-use phf::{phf_map as map, phf_set as set, Map, Set};
+use phf::{phf_map as map, Map};
 
 pub static SYLLABARY: Map<&'static str, &'static str> = map! {
 	// Vowels
@@ -140,14 +140,6 @@ pub static SYLLABARY: Map<&'static str, &'static str> = map! {
 	"pyo" => "ぴょ",
 
 	"n" => "ん",
-};
-
-pub static SOKUON_MATCHES: Set<&'static str> = set! {
-	"gg",
-	"kk",
-	"pp",
-	"ss",
-	"tt",
 };
 
 pub const SOKUON_GRAPH: &'static str = "っ";

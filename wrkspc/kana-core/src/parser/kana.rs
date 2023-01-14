@@ -1,14 +1,11 @@
 use super::glyphs::{
 	chouonpu::{CHOUONPU_GRAPH, CHOUONPU_MATCHES},
-	hiragana::{
-		SOKUON_GRAPH as HIRAGANA_SOKUON_GRAPH, SOKUON_MATCHES as HIRAGANA_SOKUON_MATCHES,
-		SYLLABARY as HIRAGANA,
-	},
+	hiragana::{SOKUON_GRAPH as HIRAGANA_SOKUON_GRAPH, SYLLABARY as HIRAGANA},
 	katakana::{
 		EXTENDED_SYLLABARY as EXTENDED_KATAKANA, SMALL_VOWELS as KATAKANA_SMALL_VOWELS,
-		SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH, SOKUON_MATCHES as KATAKANA_SOKUON_MATCHES,
-		SYLLABARY as KATAKANA,
+		SOKUON_GRAPH as KATAKANA_SOKUON_GRAPH, SYLLABARY as KATAKANA,
 	},
+	sokuon::SOKUON_MATCHES,
 };
 
 pub enum Kana {
@@ -35,12 +32,7 @@ impl Kana {
 	pub fn sokuon(&self, key: &str) -> Option<&'static str> {
 		let key = &key.to_lowercase();
 
-		let matches = match self {
-			Self::Hiragana { .. } => &HIRAGANA_SOKUON_MATCHES,
-			Self::Katakana { .. } => &KATAKANA_SOKUON_MATCHES,
-		};
-
-		match matches.contains(key) {
+		match (&SOKUON_MATCHES).contains(key) {
 			true => Some(self.sokuon_literal()),
 			false => None,
 		}
