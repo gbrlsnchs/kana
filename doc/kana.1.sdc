@@ -10,34 +10,31 @@ kana - Romaji to hiragana/katakana transliterator
 
 # DESCRIPTION
 
-*kana* is a CLI tool for converting romaji text into hiragana/katakana.
+*kana* is a CLI tool for converting romaji text into hiragana (ひらがな)
+and katakana (カタカナ).
 
 By default, it works with hiragana only. However, with the appropriate
 flags and arguments, it also works with katakana and supports several extra
 functionalities for it. See more details in the _EXTRA FEATURES_ section.
 
-For quick usage, simply pass the input as arguments:
+For quick usage, pass a romaji string as input:
 
-	*kana ohayougozaimasu*
-
-It's also possible to take input from _stdin_:
-
-	*kana --interactive < input*
+	*kana <<< "ohayougozaimasu"*
 
 # OPTIONS
-
-*-i*, *--interactive*
-	Read input from _stdin_.
 
 *-k*, *--katakana*
 	Start parsing with katakana instead of hiragana.
 
-*-p*, *--with-punctuation*
+*-e*, *--extended-katakana*
+	Use an extended 
+
+*-p*, *--punctuation*
 	Take punctuation marks into account.
 
 	If this option is not set, punctuation is printed as is.
 
-*-P*, *--force-prolongation*
+*-P*, *--hiragana-prolongation*
 	Force hiragana to use a prolongation character.
 
 *-t*, *--kana-toggle*=_CHAR_
@@ -65,7 +62,7 @@ It's also possible to take input from _stdin_:
 
 	If _CHAR_ is found, a small variant of a vowel is printed. If _CHAR_
 	is not a vowel, then the _CHAR_ is printed alongside whatever comes
-	after it. Only works with katakana.
+	after it.
 
 *-S*, *--virtual-stop-char*=_CHAR_
 	The character to be used in order to print a glottal stop (a "sokuon",
@@ -87,7 +84,7 @@ When using extended katakana, a set of extra syllabograms are taken into
 account when parsing. This is particularly useful for loanwords, for example,
 spaghetti:
 
-	*kana --katakana --extended-katakana supagetti*
+	*kana --katakana --extended-katakana <<< "supagetti"*
 
 The command above outputs スパゲッティ, which contains extended
 katakana syllabograms.
