@@ -8,81 +8,82 @@ kana is a CLI tool and also a library for transliterating romaji text to either 
 The following snippets only shortly demonstrate the features. For a more thorough documentation,
 see `kana(1)`.
 
-#### Default features
-
-```console
-$ kana ohayougozaimasu
+```shell
+$ kana <<< 'ohayougozaimasu'
 おはようございます
-```
-
-#### Reading from stdin
-
-```console
-$ echo "itadakimasu" | kana --interactive
-いただきます
 ```
 
 #### Katakana
 
-```console
-$ kana --katakana suupa mario
+```shell
+$ kana --katakana <<< 'suupa mario'
 スーパ マリオ
 ```
 
 #### Extended katakana
 
 
-```console
-$ kana --katakana --extended-katakana supagetti
+```shell
+$ kana --katakana --extended <<< 'supagetti'
 スパゲッティ
 ```
 
 #### Punctuation marks
 
-```console
-$ kana --with-punctuation "([{<soudesune." "'sugoi!'" '"kawaii~">}])' "?!,"
-（［｛【そうですね。 「すごい！」 『かわいい〜』】｝］）？！、
+```shell
+$ kana --punctuation <<< 'soudesune.'
+そうですね。
+$ kana --punctuation <<< 'kawaii~'
+かわいい〜
+$ kana --punctuation <<< 'nani?!'
+なに？！
+$ kana --punctuation <<< "'hiragana'"
+「ひらがな」
+$ kana --punctuation <<< '"katakana"'
+『カタカナ』
+$ kana --punctuation <<< '([{<sugoi>}])'
+（［｛【すごい】｝］）
 ```
 
-#### Forcing prolongation
+#### Forcing prolongation (hiragana only)
 
-```console
-$ kana --force-prolongation raamen
+```shell
+$ kana --force-prolongation <<< 'raamen'
 らーめん
 ```
 
 #### Toggling between kanas
 
-```console
-$ kana --kana-toggle="@" watashiha@gaburieru@desu
+```shell
+$ kana --kana-toggle='@' <<< 'watashiha@gaburieru@desu'
 わたしはガブリエルです
 ```
 
 #### Toggling between raw text and kanas
 
-```console
-$ kana --raw-text-toggle="#" watashiha#J-rock#gasukidesu
+```shell
+$ kana --raw-toggle='#' <<< 'watashiha#J-rock#gasukidesu'
 わたしはJ-rockがすきです
 ```
 
-#### Resetting prolongation (katakana only)
+#### Resetting prolongation
 
-```console
-$ kana --katakana --prolongation-reset-char="^" Pikachu^u
+```shell
+$ kana --katakana --prolongation-reset='^' <<< 'Pikachu^u'
 ピカチュウ
 ```
 
-#### Using small vowels (katakana only)
+#### Using small vowels
 
-```console
-$ kana --katakana --small-vowel-char="_" Serebi_i
-セレビィ
+```shell
+$ kana --katakana --vowel-shortener='_' <<< 'Keeshi_i'
+ケーシィ
 ```
 
 #### Adding virtual stops
 
-```console
-$ kana --katakana --virtual-stop-char="%" U%u
+```shell
+$ kana --katakana --virtual-stop='%' <<< 'U%u'
 ウッウ
 ```
 
@@ -99,9 +100,7 @@ tracker](https://todo.sr.ht/~gbrlsnchs/kana) in order to track confirmed bugs or
 
 ### Building and distributing the project
 
-This project is built entirely in Rust. Build it as you wish for local usage, and package it
-to your distro of preference in accordance with its policy on how to package Rust projects.
+This project is built entirely in Zig. Build it as you wish for local usage, and package it
+to your distro of preference in accordance with its policy on how to package Zig projects.
 
-> **_NOTE:_** `cargo build` generates shell completions for Bash, ZSH and Fish, which
-> are available at `target/completions`, and manpages at `target/doc` (only when
-> [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc) is available).
+You can generate man pages in `doc/` by using [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc).

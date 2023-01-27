@@ -1,0 +1,6 @@
+[submodule "deps/zig-clap"]
+	path = deps/zig-clap
+	url = https://github.com/Hejsil/zig-clap
+[submodule "deps/zig-scfg"]
+	path = deps/zig-scfg
+	url = https://git.sr.ht/~andreafeletto/zig-scfg
