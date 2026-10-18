@@ -46,7 +46,12 @@ pub fn main(init: std.process.Init) !void {
             return;
         },
         .version => {
-            try stdout_writer.print("kana {s}\n", .{version});
+            if (build_options.sha) |sha| {
+                try stdout_writer.print("kana {s} {s}\n", .{ version, sha });
+            } else {
+                try stdout_writer.print("kana {s}\n", .{version});
+            }
+
             try stdout_writer.flush();
             return;
         },

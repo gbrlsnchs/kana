@@ -15,7 +15,7 @@ pub fn build(b: *std.Build) void {
             break :blk;
         };
 
-        options.addOption(?[]const u8, "sha", sha);
+        options.addOption(?[]const u8, "sha", mem.trimEnd(u8, sha, "\n"));
     }
     options.addOption([]const u8, "version", version);
     const options_mod = options.createModule();
