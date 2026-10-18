@@ -6,7 +6,7 @@ kana - Romaji to hiragana/katakana transliterator
 
 # SYNOPSIS
 
-*kana* [_OPTIONS_] [_INPUT_| < _input_]
+*kana* [_OPTIONS_...] < _input_
 
 # DESCRIPTION
 
@@ -23,33 +23,33 @@ For quick usage, pass a romaji string as input:
 
 # OPTIONS
 
-*-k*, *--katakana*
+*-k*
 	Start parsing with katakana instead of hiragana.
 
-*-e*, *--extended*
+*-x*
 	Use an extended version of katakana.
 
-*-p*, *--punctuation*
+*-pun*
 	Parse punctuation marks.
 
 	If this option is not set, punctuation is printed as is.
 
-*-P*, *--force-prolongation*
+*-pro*
 	Force hiragana to use a prolongation character.
 
-*-t*, *--kana-toggle*=_CHAR_
+*-t*=_CHAR_
 	The character to be used in order to toggle kanas.
 
 	When _CHAR_ is found in the input, kanas are toggled until _CHAR_
 	if found again, an so on.
 
-*-r*, *--raw-toggle*=_CHAR_
+*-raw*=_CHAR_
 	The character to be used in order to toggle between raw text and kanas.
 
 	When _CHAR_ is found in the input, raw text is printed istead of
 	transliterated text until _CHAR_ is found again, and so on.
 
-*-R*, *--prolongation-reset*=_CHAR_
+*-res*=_CHAR_
 	The character to be used in order to prevent a katakana prolongation
 	to be printed.
 
@@ -57,44 +57,42 @@ For quick usage, pass a romaji string as input:
 	is found in the input, no prolongation is printed, and the parser
 	resets and then proceeds to parsing again.
 
-*-s*, *--vowel-shortener*=_CHAR_
+*-vow*=_CHAR_
 	The character to be used in order to print a small vowel.
 
 	If _CHAR_ is found, a small variant of a vowel is printed. If _CHAR_
 	is not a vowel, then the _CHAR_ is printed alongside whatever comes
 	after it.
 
-*-S*, *--virtual-stop*=_CHAR_
+*-stop*=_CHAR_
 	The character to be used in order to print a glottal stop (a "sokuon",
 	or 『そくおん』).
 
-*-h*, *--help*
+*-h*
 	Show help information.
 
-	Note that -h shows a short help, while --help shows a long one.
-
-*-v*, *--version*
+*-version*
 	Show version.
 
 # FEATURES
 
-## EXTENDED KATAKANA
+## Extended katakana
 
 When using extended katakana, a set of extra syllabograms are taken into
 account when parsing. This is particularly useful for loanwords, for example,
 spaghetti:
 
-	*kana --katakana --extended <<< 'supagetti'*
+	*kana -k -x <<< 'supagetti'*
 
 The command above outputs スパゲッティ, which contains extended
 katakana syllabograms.
 
-## PUNCTUATION MARKS
+## Punctuation marks
 
-By default, *kana* doesn't transliterate punctuation marks. However, when using --with-punctuation,
-it starts to take punctuation marks into account:
+By default, *kana* doesn't transliterate punctuation marks. However, when
+using -pun, it starts to take punctuation marks into account:
 
-	*kana --punctuation <<< 'onamaeha? chottomatte! kawaii~,sugoidesune.'*
+	*kana -pun <<< 'onamaeha? chottomatte! kawaii~,sugoidesune.'*
 
 The command above outputs the following:
 
@@ -102,13 +100,13 @@ The command above outputs the following:
 
 Note that quoting also works accordingly:
 
-	*kana --punctuation '"kirei"'"'benri'"*
+	*kana -pun <<< '"kirei"'"'benri'"*
 
 Opening and closing quotes are automatically handled:
 
 	『きれい』「べんり」
 
-## FORCE PROLONGATION
+## Force prolongation
 
 By default, hiragana output doesn't use a prolongation character. Instead,
 it simply repeats the prolongated vowel.
@@ -116,53 +114,54 @@ it simply repeats the prolongated vowel.
 However, some words can benefit from showing the prolongation character even
 for hiragana. It's possible to do so:
 
-	*kana --force-prolongation <<< 'raamen'*
+	*kana -pro <<< 'raamen'*
 
 By forcing prolongation, the output looks like:
 
 	らーめん
 
-## KANA TOGGLING
+## Kana toggling
 
 This is a useful feature that allows toggling between kanas for a single run,
 that is, for the same input. For example:
 
-	*kana --kana-toggle='@' <<< 'watashiha@gaburieru@desu'*
+	*kana -t=@ <<< 'watashiha@gaburieru@desu'*
 
 The command above prints the following:
 
 	わたしはガブリエルです
 
-## RAW TEXT TOGGLING
+## Raw text toggling
 
 Sometimes, mixing raw text is desired. By setting a toggle for raw text,
 it's possible to accomplish that:
 
-	*kana --raw-toggle='#' <<< 'watashiha#J-rock#gasukidesu'*
+	*kana -raw=# <<< 'watashiha#J-rock#gasukidesu'*
 
 The resulting output for the command above is:
 
 	わたしはJ-rockがすきです
 
-## PROLONGATION RESET
+## Prolongation reset
 
-When parsing katakana, *kana* automatically prints a prolongation for repeated
-vowels. However, sometimes, this is not desired. It's possible to reset the prolongation:
+When parsing katakana, *kana* automatically prints a prolongation for
+repeated vowels. However, sometimes, this is not desired. It's possible to
+reset the prolongation:
 
-	*kana --katakana --prolongation-reset='^' Pikachu^u*
+	*kana -k -res=^ <<< 'Pikachu^u'*
 
 Now you can correctly print some Pokémon names, like Pikachu's, whose output is:
 
 	ピカチュウ
 
-## SMALL VOWEL
+## Small vowel
 
 Some words, for some reason, are not prolonged by the chouonpu
 (ちょうおんぷ) mark, but by a small vowel instead.
 
 This is notoriously true for Pokémon names, for example:
 
-	*kana --katakana --vowel-shortener='_' <<< 'Serebi_i'*
+	*kana -k -vow=\_ <<< 'Serebi_i'*
 
 The command above renders the following output:
 
@@ -170,18 +169,18 @@ The command above renders the following output:
 
 Note that it also works with the prolongation mark:
 
-	*kana --katakana --vowel-shortener='_' <<< 'Me_eekuru'*
+	*kana -k -s=\_ <<< 'Me_eekuru'*
 
 The output for the above:
 
 	メェークル
 
-## VIRTUAL STOP
+## Virtual stop
 
 This is a niche feature, mostly useful for some loanwords (probably Pokémon
 names again). It allows freely inserting a glottal stop mark:
 
-	*kana --katakana --virtual-stop='%' <<< 'U%u'*
+	*kana -k -stop=% <<< 'U%u'*
 
 The output for the above is:
 
@@ -191,4 +190,4 @@ The output for the above is:
 
 Developed and maintained by Gabriel Sanches <gabriel@gsr.dev>.
 
-Source code is located at <https://git.sr.ht/~gbrlsnchs/kana>.
+Source code is located at <https://sr.ht/~gbrlsnchs/kana>.

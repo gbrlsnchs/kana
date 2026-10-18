@@ -16,7 +16,7 @@ $ kana <<< 'ohayougozaimasu'
 #### Katakana
 
 ```shell
-$ kana --katakana <<< 'suupa mario'
+$ kana -k <<< 'suupa mario'
 スーパ マリオ
 ```
 
@@ -24,83 +24,77 @@ $ kana --katakana <<< 'suupa mario'
 
 
 ```shell
-$ kana --katakana --extended <<< 'supagetti'
+$ kana -k -x <<< 'supagetti'
 スパゲッティ
 ```
 
 #### Punctuation marks
 
 ```shell
-$ kana --punctuation <<< 'soudesune.'
+$ kana -pun <<< 'soudesune.'
 そうですね。
-$ kana --punctuation <<< 'kawaii~'
+$ kana -pun <<< 'kawaii~'
 かわいい〜
-$ kana --punctuation <<< 'nani?!'
+$ kana -pun <<< 'nani?!'
 なに？！
-$ kana --punctuation <<< "'hiragana'"
+$ kana -pun <<< "'hiragana'"
 「ひらがな」
-$ kana --punctuation <<< '"katakana"'
+$ kana -pun <<< '"katakana"'
 『カタカナ』
-$ kana --punctuation <<< '([{<sugoi>}])'
+$ kana -pun <<< '([{<sugoi>}])'
 （［｛【すごい】｝］）
 ```
 
 #### Forcing prolongation (hiragana only)
 
 ```shell
-$ kana --force-prolongation <<< 'raamen'
+$ kana -pro <<< 'raamen'
 らーめん
 ```
 
 #### Toggling between kanas
 
 ```shell
-$ kana --kana-toggle='@' <<< 'watashiha@gaburieru@desu'
+$ kana -t=@ <<< 'watashiha@gaburieru@desu'
 わたしはガブリエルです
 ```
 
 #### Toggling between raw text and kanas
 
 ```shell
-$ kana --raw-toggle='#' <<< 'watashiha#J-rock#gasukidesu'
+$ kana -raw=# <<< 'watashiha#J-rock#gasukidesu'
 わたしはJ-rockがすきです
 ```
 
 #### Resetting prolongation
 
 ```shell
-$ kana --katakana --prolongation-reset='^' <<< 'Pikachu^u'
+$ kana -k -res=^ <<< 'Pikachu^u'
 ピカチュウ
 ```
 
 #### Using small vowels
 
 ```shell
-$ kana --katakana --vowel-shortener='_' <<< 'Keeshi_i'
+$ kana -k -vow=_ <<< 'Keeshi_i'
 ケーシィ
 ```
 
 #### Adding virtual stops
 
 ```shell
-$ kana --katakana --virtual-stop='%' <<< 'U%u'
+$ kana -k -stop=% <<< 'U%u'
 ウッウ
 ```
 
+### Building
+
+- [Zig](https://ziglang.org/download/) 0.16
+- [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc) (for man pages)
+
 ### Contributing
 
-[Use the mailing list](mailto:~gbrlsnchs/kana-dev@lists.sr.ht) to
-- Report issues
-- Request new features
-- Send patches
-- Discuss development in general
+[Pick the appropriate mailing list](https://sr.ht/~gbrlsnchs/kana/lists) and send an email.
 
-If applicable, a new ticket will be submitted by maintainers to [the issue
-tracker](https://todo.sr.ht/~gbrlsnchs/kana) in order to track confirmed bugs or new features.
-
-### Building and distributing the project
-
-This project is built entirely in Zig. Build it as you wish for local usage, and package it
-to your distro of preference in accordance with its policy on how to package Zig projects.
-
-You can generate man pages in `doc/` by using [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc).
+When a bug gets confirmed, a new ticket will be submitted by maintainers to [the issue
+tracker](https://todo.sr.ht/~gbrlsnchs/kana), so folks can also follow the progress there.

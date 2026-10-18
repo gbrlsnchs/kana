@@ -1,7 +1,8 @@
 const std = @import("std");
 
-const KV = struct { @"0": []const u8, @"1": []const u8 };
-pub const Syllabary = std.ComptimeStringMap([]const u8, [_]KV{
+const KV = struct { []const u8, []const u8 };
+
+pub const syllabary = std.StaticStringMap([]const u8).initComptime([_]KV{
     // Vowels
     .{ "a", "あ" },
     .{ "i", "い" },
@@ -153,7 +154,7 @@ pub const Syllabary = std.ComptimeStringMap([]const u8, [_]KV{
     .{ "n", "ん" },
 });
 
-pub const SmallVowels = std.ComptimeStringMap([]const u8, [_]KV{
+pub const small_vowels = std.StaticStringMap([]const u8).initComptime([_]KV{
     .{ "a", "ぁ" },
     .{ "i", "ぃ" },
     .{ "u", "ぅ" },
@@ -162,3 +163,23 @@ pub const SmallVowels = std.ComptimeStringMap([]const u8, [_]KV{
 });
 
 pub const sokuon = "っ";
+
+pub const max_romaji_size = blk: {
+    var n = 0;
+
+    for (syllabary.keys()) |k| {
+        if (k.len > n) n = k.len;
+    }
+
+    break :blk n;
+};
+
+pub const min_romaji_size = blk: {
+    var n = max_romaji_size;
+
+    for (syllabary.keys()) |k| {
+        if (k.len < n) n = k.len;
+    }
+
+    break :blk n;
+};

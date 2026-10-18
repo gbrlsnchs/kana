@@ -1,5 +1,6 @@
 const std = @import("std");
 const unicode = std.unicode;
+const testing = std.testing;
 
 const Input = @This();
 
@@ -34,9 +35,11 @@ pub fn startsWith(in: *Input, c: u8) bool {
 }
 
 test "Input init" {
-    var in = Input.init("かな.グル");
+    const meta = std.meta;
+    const in = Input.init("かな.グル");
 
-    try std.testing.expect(in.len == 5);
+    try testing.expect(in.len == 5);
+    try testing.expect(meta.eql(in.data, unicode.Utf8View.initUnchecked("かな.グル")));
 }
 
 test "Input view" {
@@ -57,33 +60,36 @@ test "Input view" {
     };
 
     for (tests) |test_case| {
-        try std.testing.expectEqualStrings(test_case.want, in.view(test_case.input) orelse unreachable);
+        try testing.expectEqualStrings(
+            test_case.want,
+            in.view(test_case.input) orelse unreachable,
+        );
     }
 }
 
 test "Input shrink" {
     const Test = struct {
-        input: struct { @"0": usize, @"1": usize },
-        want: struct { @"0": []const u8, @"1": usize },
+        input: struct { usize, usize },
+        want: struct { []const u8, usize },
     };
 
     var in = Input.init("かな.グル");
 
     const tests = [_]Test{
-        .{ .input = .{ .@"0" = "か".len, .@"1" = 1 }, .want = .{ .@"0" = "な.グル", .@"1" = 4 } },
-        .{ .input = .{ .@"0" = "な.グ".len, .@"1" = 3 }, .want = .{ .@"0" = "ル", .@"1" = 1 } },
+        .{ .input = .{ "か".len, 1 }, .want = .{ "な.グル", 4 } },
+        .{ .input = .{ "な.グ".len, 3 }, .want = .{ "ル", 1 } },
     };
 
     for (tests) |test_case| {
         in.shrink(test_case.input.@"0", test_case.input.@"1");
-        try std.testing.expectEqualStrings(test_case.want.@"0", in.data.bytes);
-        try std.testing.expect(in.len == test_case.want.@"1");
+        try testing.expectEqualStrings(test_case.want.@"0", in.data.bytes);
+        try testing.expect(in.len == test_case.want.@"1");
     }
 }
 
 test "Input startsWith" {
     var in = Input.init("^foo");
 
-    try std.testing.expect(in.startsWith('^'));
-    try std.testing.expect(!in.startsWith('@'));
+    try testing.expect(in.startsWith('^'));
+    try testing.expect(!in.startsWith('@'));
 }

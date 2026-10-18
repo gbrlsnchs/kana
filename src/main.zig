@@ -1,140 +1,127 @@
 const std = @import("std");
-const compdata = @import("compdata");
-const clap = @import("zig-clap");
-
-const kana = @import("./lib.zig");
-const Fsm = @import("./Fsm.zig");
-const Config = @import("./Config.zig");
-
 const mem = std.mem;
-const io = std.io;
 const heap = std.heap;
 const os = std.os;
 const ascii = std.ascii;
-const File = std.fs.File;
+const File = std.Io.File;
+const build_options = @import("build_options");
+const version = build_options.version;
 
-const buf_size = 4096;
-const version = compdata.version;
+const kana = @import("kana");
+const Config = kana.Config;
 
-const params = clap.parseParamsComptime(
-    \\-k, --katakana                   Start parsing with katakana instead of hiragana
-    \\-e, --extended                   Use extended version of katakana
-    \\-p, --punctuation                Parse punctuation marks
-    \\-P, --force-prolongation         Force hiragana to use a prolongation character
-    \\-t, --kana-toggle <CHAR>         Use an ASCII character to toggle between kanas
-    \\-r, --raw-toggle <CHAR>          Use an ASCII character to toggle between raw text and kanas
-    \\-R, --prolongation-reset <CHAR>  Use an ASCII character to reset a prolongation
-    \\-s, --vowel-shortener <CHAR>     Use an ASCII character to insert a small vowel
-    \\-S, --virtual-stop <CHAR>        Use an ASCII character to insert a virtual glottal stop
-    \\-h, --help                       Display this help and exit
-    \\-v, --version                    Show version and exit
-);
+const usage =
+    \\Usage: kana [OPTIONS...] < input
+    \\
+    \\Options:
+    \\-k           Start parsing with katakana instead of hiragana
+    \\-x           Use extended version of katakana
+    \\-pun         Parse punctuation marks
+    \\-pro         Force hiragana to use a prolongation character
+    \\-t=<CHAR>    Use an ASCII character to toggle between kanas
+    \\-raw=<CHAR>  Use an ASCII character to toggle between raw text and kanas
+    \\-res=<CHAR>  Use an ASCII character to reset a prolongation
+    \\-vow=<CHAR>  Use an ASCII character to insert a small vowel
+    \\-stop=<CHAR> Use an ASCII character to insert a virtual glottal stop
+    \\-h           Display this help and exit
+    \\-version     Show version and exit
+;
 
-pub fn main() !void {
-    var diag = clap.Diagnostic{};
+pub fn main(init: std.process.Init) !void {
+    const io = init.io;
+    const arena = init.arena.allocator();
+    const args = try init.minimal.args.toSlice(arena);
 
-    start(&diag) catch |err| {
-        const stderr = io.getStdErr().writer();
+    var stdout = File.stdout().writer(io, &.{});
+    const stdout_writer = &stdout.interface;
 
-        switch (err) {
-            error.InvalidAsciiChar => {
-                try diag.report(stderr, err);
-                try stderr.print("\n", .{});
-                try printHelp(stderr);
-            },
-            else => {
-                try stderr.print("error: {s}\n", .{@errorName(err)});
-            },
-        }
+    var stdin_buffer: [4096]u8 = undefined;
+    var stdin = File.stdin().reader(io, &stdin_buffer);
+    const stdin_reader = &stdin.interface;
 
-        os.exit(1);
-    };
-}
-
-fn start(diag: *clap.Diagnostic) !void {
-    const stdout = io.getStdOut();
-    const stdin = io.getStdIn().reader();
-    var buffered_stdin = io.bufferedReader(stdin);
-
-    const parsers = comptime .{ .CHAR = clap.parsers.string };
-
-    var app = try clap.parse(clap.Help, &params, parsers, .{ .diagnostic = diag });
-    defer app.deinit();
-
-    var arena = heap.ArenaAllocator.init(heap.page_allocator);
-    defer arena.deinit();
-
-    return run(arena.allocator(), stdout.writer(), buffered_stdin.reader(), app);
-}
-
-fn run(
-    allocator: mem.Allocator,
-    stdout: anytype,
-    stdin: anytype,
-    app: anytype,
-) !void {
-    if (app.args.help) {
-        return printHelp(stdout);
-    }
-
-    if (app.args.version) {
-        return stdout.print("kana version {s}\n", .{version});
-    }
-
-    const args = app.args;
-    const cfg = kana.Config{
-        .start_with_katakana = args.katakana,
-        .extended_katakana = args.extended,
-        .parse_punctuation = args.punctuation,
-        .force_prolongation = args.@"force-prolongation",
-        .special_chars = .{
-            .kana = try parseChar(args, "kana-toggle"),
-            .raw_text = try parseChar(args, "raw-toggle"),
-            .reset_prolongation = try parseChar(args, "prolongation-reset"),
-            .small_vowel = try parseChar(args, "vowel-shortener"),
-            .virt_stop = try parseChar(args, "virtual-stop"),
+    const config = switch (parseArgs(args[1..])) {
+        .help => {
+            try stdout_writer.print("{s}\n", .{usage});
+            try stdout_writer.flush();
+            return;
         },
+        .version => {
+            try stdout_writer.print("kana {s}\n", .{version});
+            try stdout_writer.flush();
+            return;
+        },
+        .invalid => |option| return std.debug.print(
+            "Invalid option: {s}\n\n{s}\n",
+            .{ option, usage },
+        ),
+        .valid => |c| c,
     };
 
-    var buf: [buf_size]u8 = undefined;
-    while (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        const result = try kana.transliterate(allocator, line, cfg);
+    while (try stdin_reader.takeDelimiter('\n')) |line| {
+        const result = try kana.transliterate(arena, line, config);
 
         if (result.len > 0) {
-            try stdout.print("{s}\n", .{result});
+            try stdout_writer.print("{s}\n", .{result});
+            try stdout_writer.flush();
         }
     }
 }
 
-fn printHelp(output: anytype) !void {
-    try output.print(
-        \\Usage: kana [OPTIONS...] < input
-        \\
-        \\Options:
-        \\
-    , .{});
-    try clap.help(output, clap.Help, &params, .{
-        .description_on_new_line = false,
-        .description_indent = 0,
-        .indent = 2,
-        .spacing_between_parameters = 0,
-    });
+const ParsedConfig = union(enum) {
+    help,
+    version,
+    valid: Config,
+    invalid: [:0]const u8,
+};
+
+fn parseArgs(args: []const [:0]const u8) ParsedConfig {
+    var config: Config = .{};
+
+    for (args) |arg| {
+        if (mem.eql(u8, arg, "-h")) return .help;
+        if (mem.eql(u8, arg, "-version")) return .version;
+
+        if (mem.eql(u8, arg, "-k")) {
+            config.start_with_katakana = true;
+        } else if (mem.eql(u8, arg, "-x")) {
+            config.extended_katakana = true;
+        } else if (mem.eql(u8, arg, "-pun")) {
+            config.parse_punctuation = true;
+        } else if (startsWithPrefix(arg, "-t=")) |i| {
+            config.special_chars.kana = parseAsciiChar(arg[i..]) catch
+                return .{ .invalid = arg };
+        } else if (startsWithPrefix(arg, "-raw=")) |i| {
+            config.special_chars.raw_text = parseAsciiChar(arg[i..]) catch
+                return .{ .invalid = arg };
+        } else if (startsWithPrefix(arg, "-res=")) |i| {
+            config.special_chars.reset_prolongation = parseAsciiChar(arg[i..]) catch
+                return .{ .invalid = arg };
+        } else if (startsWithPrefix(arg, "-vow=")) |i| {
+            config.special_chars.small_vowel = parseAsciiChar(arg[i..]) catch
+                return .{ .invalid = arg };
+        } else if (startsWithPrefix(arg, "-stop=")) |i| {
+            config.special_chars.virt_stop = parseAsciiChar(arg[i..]) catch
+                return .{ .invalid = arg };
+        } else {
+            return .{ .invalid = arg };
+        }
+    }
+
+    return .{ .valid = config };
 }
 
-fn parseChar(args: anytype, comptime field: []const u8) !?u8 {
-    const option = @field(args, field);
+fn startsWithPrefix(arg: [:0]const u8, prefix: [:0]const u8) ?usize {
+    return if (mem.startsWith(u8, arg, prefix))
+        prefix.len
+    else
+        null;
+}
 
-    if (option) |str| {
-        if (str.len != 1) {
-            return error.InvalidAsciiChar;
-        }
+fn parseAsciiChar(arg: [:0]const u8) !u8 {
+    if (arg.len != 1) return error.InvalidSize;
 
-        const char = str[0];
-        if (!ascii.isASCII(char)) {
-            return error.InvalidAsciiChar;
-        }
+    const char = arg[0];
+    if (!ascii.isAscii(char)) return error.NotAscii;
 
-        return char;
-    }
-    return null;
+    return char;
 }

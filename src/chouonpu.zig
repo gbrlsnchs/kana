@@ -1,11 +1,13 @@
 const std = @import("std");
 
-const KV = struct { @"0": []const u8, @"1": void };
-pub const Matches = std.ComptimeStringMap(void, [_]KV{
-    .{ "aa", {} },
-    .{ "ii", {} },
-    .{ "uu", {} },
-    .{ "ee", {} },
-    .{ "oo", {} },
+const KV = struct { []const u8 };
+
+pub const matches = std.StaticStringMap(void).initComptime(&[_]KV{
+    .{"aa"},
+    .{"ii"},
+    .{"uu"},
+    .{"ee"},
+    .{"oo"},
 });
-pub const Graph = "ー";
+
+pub const graph = "ー";

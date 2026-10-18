@@ -1,42 +1,61 @@
 const std = @import("std");
-const zbs = std.build;
+const mem = std.mem;
 
-const process = std.process;
-const Builder = zbs.Builder;
+const version = "0.4.0-dev";
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
-    const exe = b.addExecutable("kana", "src/main.zig");
+    const options = b.addOptions();
+    if (mem.endsWith(u8, version, "-dev")) blk: {
+        var rc: u8 = 0;
+        const sha = b.runAllowFail(&.{ "git", "rev-parse", "HEAD" }, &rc, .inherit) catch {
+            options.addOption(?[]const u8, "sha", null);
+            break :blk;
+        };
 
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
-
-    exe.strip = b.option(bool, "strip", "Omit debug information") orelse false;
-    exe.pie = b.option(bool, "pie", "Build a Position Independent Executable") orelse false;
-
-    const version = b.option([]const u8, "version", "Set program version") orelse "unknown";
-    const compdata = b.addOptions();
-    compdata.addOption([]const u8, "version", version);
-
-    exe.addOptions("compdata", compdata);
-    exe.addPackagePath("zig-clap", "deps/zig-clap/clap.zig");
-    exe.install();
-
-    const run = exe.run();
-    if (b.args) |args| {
-        run.addArgs(args);
+        options.addOption(?[]const u8, "sha", sha);
     }
-    run.step.dependOn(b.getInstallStep());
+    options.addOption([]const u8, "version", version);
+    const options_mod = options.createModule();
 
-    const run_step = b.step("run", "Run program");
-    run_step.dependOn(&run.step);
+    const mod = b.addModule("kana", .{
+        .root_source_file = b.path("src/root.zig"),
+        .target = target,
+    });
 
-    const tests = b.addTest("src/tests.zig");
-    tests.addPackagePath("zig-scfg", "deps/zig-scfg/scfg.zig");
-    tests.setBuildMode(exe.build_mode);
+    const exe = b.addExecutable(.{
+        .name = "kana",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "kana", .module = mod },
+                .{ .name = "build_options", .module = options_mod },
+            },
+        }),
+    });
+
+    b.installArtifact(exe);
+
+    const run_step = b.step("run", "Run the app");
+    const run_cmd = b.addRunArtifact(exe);
+    run_step.dependOn(&run_cmd.step);
+
+    run_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        run_cmd.addArgs(args);
+    }
+
+    const mod_tests = b.addTest(.{ .root_module = mod });
+    const run_mod_tests = b.addRunArtifact(mod_tests);
+
+    const exe_tests = b.addTest(.{ .root_module = exe.root_module });
+    const run_exe_tests = b.addRunArtifact(exe_tests);
 
     const test_step = b.step("test", "Run tests");
-    test_step.dependOn(&tests.step);
+    test_step.dependOn(&run_mod_tests.step);
+    test_step.dependOn(&run_exe_tests.step);
 }
