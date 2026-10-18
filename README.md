@@ -90,7 +90,7 @@ $ kana -k -stop=% <<< 'U%u'
 ### Building
 
 - [Zig](https://ziglang.org/download/) 0.16
-- [`scdoc`](https://git.sr.ht/~sircmpwn/scdoc) (for man pages)
+- [scdoc](https://git.sr.ht/~sircmpwn/scdoc) (for man pages)
 
 ### Contributing
 
