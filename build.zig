@@ -1,7 +1,7 @@
 const std = @import("std");
 const mem = std.mem;
 
-const version = "0.4.0-dev";
+const version = "0.4.0";
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
