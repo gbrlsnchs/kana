@@ -93,6 +93,8 @@ fn parseArgs(args: []const [:0]const u8) ParsedConfig {
             config.extended_katakana = true;
         } else if (mem.eql(u8, arg, "-pun")) {
             config.parse_punctuation = true;
+        } else if (mem.eql(u8, arg, "-pro")) {
+            config.force_prolongation = true;
         } else if (startsWithPrefix(arg, "-t=")) |i| {
             config.special_chars.kana = parseAsciiChar(arg[i..]) catch
                 return .{ .invalid = arg };
