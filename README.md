@@ -47,42 +47,42 @@ $ kana -pun <<< '([{<sugoi>}])'
 
 #### Forcing prolongation (hiragana only)
 
-```shell
+```
 $ kana -pro <<< 'raamen'
 らーめん
 ```
 
 #### Toggling between kanas
 
-```shell
+```
 $ kana -t=@ <<< 'watashiha@gaburieru@desu'
 わたしはガブリエルです
 ```
 
 #### Toggling between raw text and kanas
 
-```shell
+```
 $ kana -raw=# <<< 'watashiha#J-rock#gasukidesu'
 わたしはJ-rockがすきです
 ```
 
 #### Resetting prolongation
 
-```shell
+```
 $ kana -k -res=^ <<< 'Pikachu^u'
 ピカチュウ
 ```
 
 #### Using small vowels
 
-```shell
+```
 $ kana -k -vow=_ <<< 'Keeshi_i'
 ケーシィ
 ```
 
 #### Adding virtual stops
 
-```shell
+```
 $ kana -k -stop=% <<< 'U%u'
 ウッウ
 ```
