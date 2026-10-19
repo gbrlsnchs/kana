@@ -62,11 +62,12 @@ pub fn main(init: std.process.Init) !void {
         .valid => |c| c,
     };
 
-    while (try stdin_reader.takeDelimiter('\n')) |line| {
+    while (true) {
+        const line = stdin_reader.takeDelimiterInclusive('\n') catch break;
         const result = try kana.transliterate(arena, line, config);
 
         if (result.len > 0) {
-            try stdout_writer.print("{s}\n", .{result});
+            try stdout_writer.print("{s}", .{result});
             try stdout_writer.flush();
         }
     }
