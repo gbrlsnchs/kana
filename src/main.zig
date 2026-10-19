@@ -71,6 +71,15 @@ pub fn main(init: std.process.Init) !void {
             try stdout_writer.flush();
         }
     }
+
+    if (stdin_reader.bufferedLen() > 0) {
+        const result = try kana.transliterate(arena, stdin_reader.buffered(), config);
+        if (result.len > 0) {
+            try stdout_writer.print("{s}", .{result});
+            try stdout_writer.flush();
+        }
+        stdin_reader.tossBuffered();
+    }
 }
 
 const ParsedConfig = union(enum) {
