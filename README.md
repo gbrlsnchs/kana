@@ -8,14 +8,14 @@ kana is a CLI tool and also a library for transliterating romaji text to either 
 The following snippets only shortly demonstrate the features. For a more thorough documentation,
 see `kana(1)`.
 
-```shell
+```
 $ kana <<< 'ohayougozaimasu'
 おはようございます
 ```
 
 #### Katakana
 
-```shell
+```
 $ kana -k <<< 'suupa mario'
 スーパ マリオ
 ```
@@ -23,14 +23,14 @@ $ kana -k <<< 'suupa mario'
 #### Extended katakana
 
 
-```shell
+```
 $ kana -k -x <<< 'supagetti'
 スパゲッティ
 ```
 
 #### Punctuation marks
 
-```shell
+```
 $ kana -pun <<< 'soudesune.'
 そうですね。
 $ kana -pun <<< 'kawaii~'
